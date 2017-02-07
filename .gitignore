@@ -1,0 +1,8 @@
+/.vs
+/cpsample
+/x64
+/ARM
+/Win32
+*.vcxproj.user
+*.db
+*.opendb
