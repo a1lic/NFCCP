@@ -100,7 +100,7 @@ extern "C" bool create_class_registry(HKEY clsid, const GUID & class_id)
 
 extern "C" HRESULT __stdcall DllRegisterServer()
 {
-	auto transaction = CreateTransaction(nullptr, nullptr, 0UL, 0UL, 0UL, 0UL, L"MyNumCP▶DllUnregisterServer");
+	auto transaction = CreateTransaction(nullptr, nullptr, 0UL, 0UL, 0UL, 0UL, L"SuicaCP▶DllUnregisterServer");
 	if(transaction == INVALID_HANDLE_VALUE)
 	{
 		return E_FAIL;
@@ -142,7 +142,7 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 		CloseHandle(transaction);
 		return E_FAIL;
 	}
-	RegSetValueExW(subkey, nullptr, 0UL, REG_SZ, (const BYTE*)L"マイナンバー資格情報プロバイダー", (DWORD)(sizeof(wchar_t) * 16));
+	RegSetValueExW(subkey, nullptr, 0UL, REG_SZ, (const BYTE*)L"Suica® 資格情報プロバイダー", (DWORD)(sizeof(wchar_t) * 16));
 
 	RegCloseKey(key);
 
@@ -153,7 +153,7 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 
 extern "C" HRESULT __stdcall DllUnregisterServer()
 {
-	auto transaction = CreateTransaction(nullptr, nullptr, 0UL, 0UL, 0UL, 0UL, L"MyNumCP▶DllRegisterServer");
+	auto transaction = CreateTransaction(nullptr, nullptr, 0UL, 0UL, 0UL, 0UL, L"SuicaCP▶DllRegisterServer");
 	if(transaction == INVALID_HANDLE_VALUE)
 	{
 		return E_FAIL;

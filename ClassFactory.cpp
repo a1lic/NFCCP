@@ -73,6 +73,14 @@ HRESULT CClassFactory::CreateInstance(IUnknown * pUnkOuter, REFIID riid, void **
 		return result;
 	}
 
+	if(riid == __uuidof(ICredentialProviderFilter))
+	{
+		ICredentialProviderFilter * cp = new CCredentialProviderFilter();
+		result = cp->QueryInterface(riid, ppvObject);
+		cp->Release();
+		return result;
+	}
+
 	*ppvObject = nullptr;
 	return E_NOINTERFACE;
 }
