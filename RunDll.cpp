@@ -16,9 +16,17 @@ extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, i
 	}
 
 	SmartCardHelper * h = new SmartCardHelper();
+
+	if(h->GetReadersCount() == 0)
+	{
+		DebugPrint(L"No card reader is installed on system.");
+		delete h;
+		return;
+	}
+
 	LONG sc_result;
 
-	DebugPrint(L"%u of card readers installed on system.", h->GetReadersCount());
+	DebugPrint(L"%u of card readers are installed on system.", h->GetReadersCount());
 
 	auto r = h->GetReaderAt(0);
 
