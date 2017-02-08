@@ -18,13 +18,39 @@ SmartCardReader::~SmartCardReader()
 
 LONG SmartCardReader::Connect()
 {
-	LONG result;
-	result = SCardConnectW(this->context, this->name->c_str(), SCARD_SHARE_SHARED, SCARD_PROTOCOL_T1, &this->handle, &this->protocol);
+	return this->Connect(SmartCardProtocol::Default);
+}
+
+LONG SmartCardReader::Connect(SmartCardProtocol protocol)
+{
+	DWORD dwPrefferedProtocols;
+	switch(protocol)
+	{
+	case SmartCardProtocol::Default:
+		dwPrefferedProtocols = SCARD_PROTOCOL_DEFAULT;
+		break;
+	case SmartCardProtocol::Optimal:
+		dwPrefferedProtocols = SCARD_PROTOCOL_OPTIMAL;
+		break;
+	case SmartCardProtocol::Character:
+		dwPrefferedProtocols = SCARD_PROTOCOL_T0;
+		break;
+	case SmartCardProtocol::Block:
+		dwPrefferedProtocols = SCARD_PROTOCOL_T1;
+		break;
+	default:
+		dwPrefferedProtocols = SCARD_PROTOCOL_DEFAULT;
+		break;
+	}
+
+	auto result = SCardConnectW(this->context, this->name->c_str(), SCARD_SHARE_SHARED, dwPrefferedProtocols, &this->handle, &this->protocol);
+
 	if(result != SCARD_S_SUCCESS)
 	{
 		DebugPrint(L"Attempt to connect reader `%s` - failed 0x%X", this->name->c_str(), result);
 		this->handle = 0;
 	}
+
 	return result;
 }
 

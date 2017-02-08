@@ -7,6 +7,11 @@ extern ULONG global_instances;
 extern "C" int MessageBoxFmt(HWND, const wchar_t *, UINT, const wchar_t *, ...);
 extern "C" void DebugPrint(const wchar_t *, ...);
 
+enum SmartCardProtocol : unsigned char
+{
+	Default, Optimal, Character, Block
+};
+
 class __declspec(uuid("D2BB2AE9-8214-4499-BC3E-D2EAB632EC22")) CClassFactory : public IClassFactory
 {
 private:
@@ -73,6 +78,7 @@ public:
 	SmartCardReader(SCARDCONTEXT, const wchar_t *);
 	~SmartCardReader();
 	LONG Connect();
+	LONG Connect(SmartCardProtocol);
 	LONG Disconnect();
 };
 
