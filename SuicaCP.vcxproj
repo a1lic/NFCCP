@@ -96,6 +96,7 @@
     <ClCompile Include="CredentialProviderFilter.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Registry.cpp" />
+    <ClCompile Include="SmartCardHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClassDef.hpp" />

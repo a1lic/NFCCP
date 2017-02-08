@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include <Credentialprovider.h>
+#include <winscard.h>
+#include <vector>
 
 extern ULONG global_instances;
 extern "C" int MessageBoxFmt(HWND, const wchar_t *, UINT, const wchar_t *, ...);
@@ -59,4 +61,31 @@ public:
 	HRESULT GetFieldDescriptorAt(DWORD, CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR **);
 	HRESULT GetCredentialCount(DWORD *, DWORD *, BOOL *);
 	HRESULT GetCredentialAt(DWORD, ICredentialProviderCredential **);
+};
+
+class SmartCardReader
+{
+	SCARDCONTEXT context;
+	std::wstring * name;
+	SCARDHANDLE handle;
+	DWORD protocol;
+public:
+	SmartCardReader(SCARDCONTEXT, const wchar_t *);
+	~SmartCardReader();
+	LONG Connect();
+	LONG Disconnect();
+};
+
+class SmartCardHelper
+{
+	SCARDCONTEXT context;
+	std::vector<SmartCardReader> * readers;
+public:
+	SmartCardHelper();
+	~SmartCardHelper();
+	SCARDCONTEXT GetContext();
+	unsigned short GetReadersCount();
+	SmartCardReader * GetReaderAt(unsigned short);
+private:
+	void EnumerateReaders();
 };
