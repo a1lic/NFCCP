@@ -2,7 +2,8 @@
 #include <Credentialprovider.h>
 
 extern ULONG global_instances;
-
+extern "C" int MessageBoxFmt(HWND, const wchar_t *, UINT, const wchar_t *, ...);
+extern "C" void DebugPrint(const wchar_t *, ...);
 
 class __declspec(uuid("D2BB2AE9-8214-4499-BC3E-D2EAB632EC22")) CClassFactory : public IClassFactory
 {

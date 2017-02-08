@@ -62,3 +62,34 @@ extern "C" HRESULT __stdcall DllCanUnloadNow()
 {
 	return (global_instances == 0UL) ? S_OK : S_FALSE;
 }
+
+extern "C" int MessageBoxFmt(HWND hWnd, const wchar_t * lpCaption, UINT uType, const wchar_t * lpText, ...)
+{
+	auto msg = new wchar_t[1024];
+	va_list ap;
+	va_start(ap, lpText);
+	vswprintf_s(msg, 1024, lpText, ap);
+	va_end(ap);
+	auto r = MessageBoxW(hWnd, msg, lpCaption, uType);
+	delete msg;
+	return r;
+}
+
+extern "C" void DebugPrint(const wchar_t * lpOutputString, ...)
+{
+	auto msg = new wchar_t[1024];
+	va_list ap;
+	va_start(ap, lpOutputString);
+	vswprintf_s(msg, 1024, lpOutputString, ap);
+	va_end(ap);
+	if(wcslen(msg) == 1023)
+	{
+		msg[1022] = L'\n';
+	}
+	else
+	{
+		wcscat_s(msg, 1024, L"\n");
+	}
+	OutputDebugStringW(msg);
+	delete msg;
+}
