@@ -92,10 +92,8 @@ extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, i
 
 	wprintf_s(L"%u台のカードリーダーが見つかりました。\n", h->GetReadersCount());
 
-	auto r = h->GetReaderAt(0);
-
 	// カードがセットされたらIDを出力する処理を登録
-	r->RegisterConnectionHandler(
+	h->RegisterConnectionHandler(
 		[](SmartCardReader *x, SmartCard *c)
 		{
 			auto id = c->GetID();
@@ -103,7 +101,7 @@ extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, i
 			wprintf_s(L"[%s]カードを認識しました。(ID:%s)\n", rname.c_str(), id.c_str());
 		});
 	// カードが外された時の処理
-	r->RegisterDisconnectionHandler(
+	h->RegisterDisconnectionHandler(
 		[](SmartCardReader *x, SmartCard *c)
 		{
 			auto id = c->GetID();
@@ -111,12 +109,12 @@ extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, i
 			wprintf_s(L"[%s]カードが外されました。(ID:%s)\n", rname.c_str(), id.c_str());
 		});
 	// 監視を開始
-	wprintf_s(L"カードリーダー`%s'の監視を開始します。\n", r->GetName().c_str());
-	r->StartConnection();
+	wprintf_s(L"カードリーダーの監視を開始します。\n");
+	h->WatchAll();
 	wprintf_s(L"何かキーを押すと終了します。\n");
 	_getwch();
 	// 監視を終了
-	r->StopConnection();
+	h->UnwatchAll();
 
 	delete h;
 

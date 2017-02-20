@@ -7,17 +7,37 @@ SmartCard::SmartCard(SCARDCONTEXT context, SCARDHANDLE handle)
 	this->handle = handle;
 
 	// カードが認識されたときに呼ばれ、ここでカードからIDを取得する
-	DWORD atr_size = 256;
-	BYTE * atr = new BYTE[256];
-	static const unsigned char cmd_get_info_card_id[] = {0xFF, 0xCA, 0x00, 0x00, 0xFE};
+	DWORD atr_size = 1024;
+	BYTE * atr = new BYTE[1024];
+	static const unsigned char cmd_get_info_card_id[] = {0xFF, 0xCA, 0x00, 0x00, 0x00};
 	// PC/SC 2.0のGetData(0, 0)を送信
 	if(SCardTransmit(this->handle, SCARD_PCI_T1, cmd_get_info_card_id, 5, nullptr, atr, &atr_size) == SCARD_S_SUCCESS)
 	{
-		// OK
-		for(DWORD i = 2; i < atr_size; i++)
+		if((atr[atr_size - 1] == 0x00) && (atr[atr_size - 2] == 0x90))
 		{
-			this->id.push_back(atr[i]);
+			// OK
+			atr_size -= 2;
+			for(DWORD i = 0; i < atr_size; i++)
+			{
+				this->id.push_back(atr[i]);
+			}
 		}
+		else
+		{
+			// ERROR
+			this->id.push_back(0xDE);
+			this->id.push_back(0xAD);
+			for(DWORD i = 0; i < atr_size; i++)
+			{
+				this->id.push_back(atr[i]);
+			}
+		}
+	}
+	else
+	{
+		// ERROR
+		this->id.push_back(0xDE);
+		this->id.push_back(0xAD);
 	}
 	delete atr;
 }
@@ -132,6 +152,10 @@ void SmartCardReader::Disconnect()
 		{
 			(*i)(this, this->card);
 		}
+		if(this->helper)
+		{
+			this->helper->dispatch_disconnection_handler(this);
+		}
 		delete this->card;
 		this->card = nullptr;
 	}
@@ -167,6 +191,7 @@ bool SmartCardReader::StartConnection()
 		0,
 		&tid)
 	);
+	auto c = this->name->size();
 	DebugPrint(L"Start connection thread for `%s' as thread %u", this->name->c_str(), tid);
 
 	return (this->connection_thread != nullptr);
@@ -205,6 +230,10 @@ void SmartCardReader::ConnectionThread()
 		for(auto i = this->connection_handler.begin(), e = this->connection_handler.end(); i < e; i++)
 		{
 			(*i)(this, this->card);
+		}
+		if(this->helper)
+		{
+			this->helper->dispatch_connection_handler(this);
 		}
 
 		DWORD state = SCARD_UNKNOWN;
@@ -259,7 +288,49 @@ SmartCardReader * SmartCardHelper::GetReaderAt(unsigned short index)
 	{
 		return nullptr;
 	}
-	return &(this->readers.at(index));
+	return this->readers.at(index);
+}
+
+void SmartCardHelper::RegisterConnectionHandler(ConnectionHandler handler)
+{
+	this->connection_handler.push_back(handler);
+}
+
+void SmartCardHelper::RegisterDisconnectionHandler(DisconnectionHandler handler)
+{
+	this->disconnection_handler.push_back(handler);
+}
+
+void SmartCardHelper::dispatch_connection_handler(SmartCardReader * reader)
+{
+	for(auto i = this->connection_handler.begin(), e = this->connection_handler.end(); i < e; i++)
+	{
+		(*i)(reader, reader->GetCard());
+	}
+}
+
+void SmartCardHelper::dispatch_disconnection_handler(SmartCardReader * reader)
+{
+	for(auto i = this->disconnection_handler.begin(), e = this->disconnection_handler.end(); i < e; i++)
+	{
+		(*i)(reader, reader->GetCard());
+	}
+}
+
+void SmartCardHelper::WatchAll()
+{
+	for(auto i = this->readers.begin(), e = this->readers.end(); i < e; i++)
+	{
+		(*i)->StartConnection();
+	}
+}
+
+void SmartCardHelper::UnwatchAll()
+{
+	for(auto i = this->readers.begin(), e = this->readers.end(); i < e; i++)
+	{
+		(*i)->StopConnection();
+	}
 }
 
 void SmartCardHelper::EnumerateReaders()
@@ -276,7 +347,8 @@ void SmartCardHelper::EnumerateReaders()
 	for(auto reader_name = reader_names; *reader_name; reader_name += (1 + wcslen(reader_name)))
 	{
 		SmartCardReader * reader = new SmartCardReader(this->context, reader_name);
-		this->readers.push_back(*reader);
+		reader->SetHelper(this);
+		this->readers.push_back(reader);
 		if(this->readers.size() >= USHRT_MAX)
 		{
 			DebugPrint(L"Too many readers.");
