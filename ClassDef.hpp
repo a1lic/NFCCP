@@ -2,10 +2,16 @@
 #include <Credentialprovider.h>
 #include <winscard.h>
 #include <vector>
+#include <map>
+#include <functional>
 
 extern ULONG global_instances;
 extern "C" int MessageBoxFmt(HWND, const wchar_t *, UINT, const wchar_t *, ...);
+#if defined(_DEBUG)
 extern "C" void DebugPrint(const wchar_t *, ...);
+#else
+#define DebugPrint(msg, ...)
+#endif
 
 enum SmartCardProtocol : unsigned char
 {
@@ -68,24 +74,50 @@ public:
 	HRESULT GetCredentialAt(DWORD, ICredentialProviderCredential **);
 };
 
+typedef void(* ConnectionHandler)(class SmartCardReader *, class SmartCard *);
+typedef void(* DisconnectionHandler)(class SmartCardReader *, class SmartCard *);
+
+class SmartCard
+{
+	SCARDCONTEXT context;
+	SCARDHANDLE handle;
+	std::vector<unsigned char> id;
+public:
+	SmartCard(SCARDCONTEXT, SCARDHANDLE);
+	~SmartCard();
+	std::wstring GetID();
+	inline SCARDHANDLE GetHandle() { return this->handle; }
+};
+
 class SmartCardReader
 {
 	SCARDCONTEXT context;
 	std::wstring * name;
-	SCARDHANDLE handle;
+	SmartCard * card;
 	DWORD protocol;
+	HANDLE connection_thread;
+	std::vector<ConnectionHandler> connection_handler;
+	std::vector<DisconnectionHandler> disconnection_handler;
+	bool do_exit_thread_loop;
 public:
 	SmartCardReader(SCARDCONTEXT, const wchar_t *);
 	~SmartCardReader();
+	inline std::wstring GetName() { return std::wstring(*name); }
 	LONG Connect();
 	LONG Connect(SmartCardProtocol);
-	LONG Disconnect();
+	void Disconnect();
+	void RegisterConnectionHandler(ConnectionHandler);
+	void RegisterDisconnectionHandler(DisconnectionHandler);
+	bool StartConnection();
+	void StopConnection();
+private:
+	void ConnectionThread();
 };
 
 class SmartCardHelper
 {
 	SCARDCONTEXT context;
-	std::vector<SmartCardReader> * readers;
+	std::vector<SmartCardReader> readers;
 public:
 	SmartCardHelper();
 	~SmartCardHelper();

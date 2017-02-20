@@ -1,39 +1,64 @@
 ﻿#include "ClassDef.hpp"
 #include <string>
 
+void * dll;
 ULONG global_instances;
 std::wstring * module_path;
 
+extern "C" bool dll_process_attach()
+{
+	DebugPrint(L"Start DLL_PROCESS_ATTACH");
+	DisableThreadLibraryCalls(static_cast<HMODULE>(dll));
+	global_instances = 0;
+
+	// DllRegisterServerで使用するフルパスを取得
+	// Windows 10以降ではMAX_PATHを超えることが可能になったのでその対策
+	DWORD _module_path_chars = 256;
+	wchar_t * _module_path;
+	for(;;)
+	{
+		_module_path = new wchar_t[_module_path_chars];
+		SetLastError(0);
+		GetModuleFileNameW(static_cast<HMODULE>(dll), _module_path, _module_path_chars);
+		if(GetLastError() == ERROR_SUCCESS)
+		{
+			break;
+		}
+		delete _module_path;
+		_module_path_chars += 256;
+		if(_module_path_chars >= 65536)
+		{
+			DebugPrint(L"Can't get module path.");
+			return false;
+		}
+	}
+
+	module_path = new std::wstring(_module_path);
+	delete _module_path;
+
+	DebugPrint(L"Module path:%s", module_path->c_str());
+
+	DebugPrint(L"End DLL_PROCESS_ATTACH");
+	return true;
+}
+
+extern "C" void dll_process_detach()
+{
+	DebugPrint(L"Start DLL_PROCESS_DETACH");
+	delete module_path;
+	DebugPrint(L"End DLL_PROCESS_DETACH");
+}
+
 extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-	if(fdwReason == DLL_PROCESS_ATTACH)
+	switch(fdwReason)
 	{
-		DisableThreadLibraryCalls(hinstDLL);
-		global_instances = 0UL;
-
-		// DllRegisterServerで使用するフルパスを取得
-		// Windows 10以降ではMAX_PATHを超えることが可能になったのでその対策
-		DWORD _module_path_chars = 256UL;
-		wchar_t * _module_path;
-		for(;;)
-		{
-			_module_path = new wchar_t[_module_path_chars];
-			SetLastError(0UL);
-			GetModuleFileNameW(hinstDLL, _module_path, _module_path_chars);
-			if(GetLastError() == ERROR_SUCCESS)
-			{
-				break;
-			}
-			delete _module_path;
-			_module_path_chars += 256UL;
-		}
-
-		module_path = new std::wstring(_module_path);
-		delete _module_path;
-	}
-	else if(fdwReason == DLL_PROCESS_DETACH)
-	{
-		delete module_path;
+	case DLL_PROCESS_DETACH:
+		dll_process_detach();
+		break;
+	case DLL_PROCESS_ATTACH:
+		dll = hinstDLL;
+		return dll_process_attach() ? TRUE : FALSE;
 	}
 
 	return TRUE;
@@ -75,6 +100,7 @@ extern "C" int MessageBoxFmt(HWND hWnd, const wchar_t * lpCaption, UINT uType, c
 	return r;
 }
 
+#if defined(_DEBUG)
 extern "C" void DebugPrint(const wchar_t * lpOutputString, ...)
 {
 	auto msg = new wchar_t[1024];
@@ -93,3 +119,4 @@ extern "C" void DebugPrint(const wchar_t * lpOutputString, ...)
 	OutputDebugStringW(msg);
 	delete msg;
 }
+#endif
