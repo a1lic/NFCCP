@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <credentialprovider.h>
+#include "SmartCardHelper.hpp"
 
 class CCredentialProviderCredential : public ICredentialProviderCredential
 {
@@ -10,6 +11,7 @@ private:
 	ICredentialProviderCredentialEvents * events;
 	HWND parent;
 	IQueryContinueWithStatus * query_continue;
+	SmartCardHelper * scard;
 	HANDLE query_continue_thread;
 	bool kill_thread;
 public:
@@ -17,6 +19,7 @@ public:
 private:
 	~CCredentialProviderCredential();
 public:
+	inline ICredentialProviderCredentialEvents * GetEvent() { if(this->events) this->events->AddRef(); return this->events; }
 	// IUnknown
 	virtual HRESULT QueryInterface(REFIID, void **);
 	virtual ULONG AddRef();

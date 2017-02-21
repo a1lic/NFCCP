@@ -13,11 +13,38 @@ CCredentialProviderCredential::CCredentialProviderCredential()
 	this->events = nullptr;
 	this->parent = nullptr;
 	this->query_continue = nullptr;
+
+	this->scard = new SmartCardHelper();
+
+	this->scard->RegisterConnectionHandler([](ConnectionInfo * ci) {
+		auto _this = static_cast<CCredentialProviderCredential*>(ci->Param);
+		auto e = _this->GetEvent();
+		if(e)
+		{
+			auto id = ci->Card->GetID();
+			e->SetFieldString(_this, 2, id.c_str());
+			e->Release();
+		}
+	}, this);
+	this->scard->RegisterDisconnectionHandler([](ConnectionInfo * ci) {
+		auto _this = static_cast<CCredentialProviderCredential*>(ci->Param);
+		auto e = _this->GetEvent();
+		if(e)
+		{
+			e->SetFieldString(_this, 2, CCredentialProvider::_fields[2].pszLabel);
+			e->Release();
+		}
+	}, this);
+
+	this->scard->WatchAll();
 }
 
 CCredentialProviderCredential::~CCredentialProviderCredential()
 {
 	DebugPrint(L"%hs(%p)::%hs", "CCredentialProviderCredential", this, "~CCredentialProviderCredential");
+	this->scard->UnwatchAll();
+	delete this->scard;
+	
 	if(this->events)
 	{
 		this->events->Release();
@@ -69,6 +96,7 @@ HRESULT CCredentialProviderCredential::Advise(ICredentialProviderCredentialEvent
 HRESULT CCredentialProviderCredential::UnAdvise()
 {
 	DebugPrint(L"%hs(%p)::%hs", "CCredentialProviderCredential", this, "UnAdvise");
+	__debugbreak();
 	if(this->events)
 	{
 		this->events->Release();
