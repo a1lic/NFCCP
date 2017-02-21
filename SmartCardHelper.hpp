@@ -4,14 +4,15 @@
 #include <winscard.h>
 #include <string>
 #include <vector>
+#include <map>
 
 enum SmartCardProtocol : unsigned char
 {
 	Default, Optimal, Character, Block
 };
 
-typedef void(* ConnectionHandler)(class SmartCardReader *, class SmartCard *);
-typedef void(* DisconnectionHandler)(class SmartCardReader *, class SmartCard *);
+typedef void(* ConnectionHandler)(class SmartCardReader *, class SmartCard *, void *);
+typedef void(* DisconnectionHandler)(class SmartCardReader *, class SmartCard *, void *);
 
 class SmartCard
 {
@@ -33,8 +34,8 @@ class SmartCardReader
 	class SmartCardHelper * helper;
 	DWORD protocol;
 	HANDLE connection_thread;
-	std::vector<ConnectionHandler> connection_handler;
-	std::vector<DisconnectionHandler> disconnection_handler;
+	std::map<ConnectionHandler, void *> connection_handler;
+	std::map<DisconnectionHandler, void *> disconnection_handler;
 	bool do_exit_thread_loop;
 public:
 	SmartCardReader(SCARDCONTEXT, const wchar_t *);
@@ -46,7 +47,9 @@ public:
 	LONG Connect(SmartCardProtocol);
 	void Disconnect();
 	void RegisterConnectionHandler(ConnectionHandler);
+	void RegisterConnectionHandler(ConnectionHandler, void *);
 	void RegisterDisconnectionHandler(DisconnectionHandler);
+	void RegisterDisconnectionHandler(DisconnectionHandler, void *);
 	bool StartConnection();
 	void StopConnection();
 private:
@@ -57,8 +60,8 @@ class SmartCardHelper
 {
 	SCARDCONTEXT context;
 	std::vector<SmartCardReader *> readers;
-	std::vector<ConnectionHandler> connection_handler;
-	std::vector<DisconnectionHandler> disconnection_handler;
+	std::map<ConnectionHandler, void *> connection_handler;
+	std::map<DisconnectionHandler, void *> disconnection_handler;
 public:
 	SmartCardHelper();
 	~SmartCardHelper();
@@ -66,7 +69,9 @@ public:
 	unsigned short GetReadersCount();
 	SmartCardReader * GetReaderAt(unsigned short);
 	void RegisterConnectionHandler(ConnectionHandler);
+	void RegisterConnectionHandler(ConnectionHandler, void *);
 	void RegisterDisconnectionHandler(DisconnectionHandler);
+	void RegisterDisconnectionHandler(DisconnectionHandler, void *);
 	void dispatch_connection_handler(SmartCardReader *);
 	void dispatch_disconnection_handler(SmartCardReader *);
 	void WatchAll();

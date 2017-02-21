@@ -149,9 +149,9 @@ void SmartCardReader::Disconnect()
 {
 	if(this->card)
 	{
-		for(auto i = this->disconnection_handler.begin(), e = this->disconnection_handler.end(); i < e; i++)
+		for(auto i = this->disconnection_handler.begin(), e = this->disconnection_handler.end(); i != e; i++)
 		{
-			(*i)(this, this->card);
+			(*(i->first))(this, this->card, i->second);
 		}
 		if(this->helper)
 		{
@@ -164,12 +164,22 @@ void SmartCardReader::Disconnect()
 
 void SmartCardReader::RegisterConnectionHandler(ConnectionHandler handler)
 {
-	this->connection_handler.push_back(handler);
+	this->connection_handler.insert_or_assign(handler, nullptr);
+}
+
+void SmartCardReader::RegisterConnectionHandler(ConnectionHandler handler, void * param)
+{
+	this->connection_handler.insert_or_assign(handler, param);
 }
 
 void SmartCardReader::RegisterDisconnectionHandler(DisconnectionHandler handler)
 {
-	this->disconnection_handler.push_back(handler);
+	this->disconnection_handler.insert_or_assign(handler, nullptr);
+}
+
+void SmartCardReader::RegisterDisconnectionHandler(DisconnectionHandler handler, void * param)
+{
+	this->disconnection_handler.insert_or_assign(handler, param);
 }
 
 bool SmartCardReader::StartConnection()
@@ -228,9 +238,9 @@ void SmartCardReader::ConnectionThread()
 		}
 
 		// カードが認識されたことをハンドラーに通知する
-		for(auto i = this->connection_handler.begin(), e = this->connection_handler.end(); i < e; i++)
+		for(auto i = this->connection_handler.begin(), e = this->connection_handler.end(); i != e; i++)
 		{
-			(*i)(this, this->card);
+			(*(i->first))(this, this->card, i->second);
 		}
 		if(this->helper)
 		{
@@ -294,27 +304,37 @@ SmartCardReader * SmartCardHelper::GetReaderAt(unsigned short index)
 
 void SmartCardHelper::RegisterConnectionHandler(ConnectionHandler handler)
 {
-	this->connection_handler.push_back(handler);
+	this->connection_handler.insert_or_assign(handler, nullptr);
+}
+
+void SmartCardHelper::RegisterConnectionHandler(ConnectionHandler handler, void * param)
+{
+	this->connection_handler.insert_or_assign(handler, param);
 }
 
 void SmartCardHelper::RegisterDisconnectionHandler(DisconnectionHandler handler)
 {
-	this->disconnection_handler.push_back(handler);
+	this->disconnection_handler.insert_or_assign(handler, nullptr);
+}
+
+void SmartCardHelper::RegisterDisconnectionHandler(DisconnectionHandler handler, void * param)
+{
+	this->disconnection_handler.insert_or_assign(handler, param);
 }
 
 void SmartCardHelper::dispatch_connection_handler(SmartCardReader * reader)
 {
-	for(auto i = this->connection_handler.begin(), e = this->connection_handler.end(); i < e; i++)
+	for(auto i = this->connection_handler.begin(), e = this->connection_handler.end(); i != e; i++)
 	{
-		(*i)(reader, reader->GetCard());
+		(*(i->first))(reader, reader->GetCard(), i->second);
 	}
 }
 
 void SmartCardHelper::dispatch_disconnection_handler(SmartCardReader * reader)
 {
-	for(auto i = this->disconnection_handler.begin(), e = this->disconnection_handler.end(); i < e; i++)
+	for(auto i = this->disconnection_handler.begin(), e = this->disconnection_handler.end(); i != e; i++)
 	{
-		(*i)(reader, reader->GetCard());
+		(*(i->first))(reader, reader->GetCard(), i->second);
 	}
 }
 
