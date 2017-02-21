@@ -65,7 +65,7 @@ HRESULT CClassFactory::CreateInstance(IUnknown * pUnkOuter, REFIID riid, void **
 	if(riid == __uuidof(IClassFactory))
 	{
 		this->AddRef();
-		*ppvObject = this;
+		*ppvObject = static_cast<IClassFactory*>(this);
 		return S_OK;
 	}
 
