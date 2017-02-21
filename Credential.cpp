@@ -94,10 +94,8 @@ HRESULT CCredentialProviderCredential::GetStringValue(DWORD dwFieldID, LPWSTR * 
 	switch(dwFieldID)
 	{
 	case 1:
-		SHStrDupW(CCredentialProvider::_fields[0].pszLabel, ppwsz);
-		break;
 	case 2:
-		SHStrDupW(CCredentialProvider::_fields[1].pszLabel, ppwsz);
+		SHStrDupW(CCredentialProvider::_fields[dwFieldID].pszLabel, ppwsz);
 		break;
 	default:
 		return E_INVALIDARG;
