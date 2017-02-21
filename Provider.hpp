@@ -30,16 +30,16 @@ private:
 	~CCredentialProvider();
 public:
 	// IUnknown
-	HRESULT QueryInterface(REFIID, void **);
-	ULONG AddRef();
-	ULONG Release();
+	virtual HRESULT QueryInterface(REFIID, void **);
+	virtual ULONG AddRef();
+	virtual ULONG Release();
 	// ICredentialProvider
-	HRESULT SetUsageScenario(CREDENTIAL_PROVIDER_USAGE_SCENARIO, DWORD);
-	HRESULT SetSerialization(const CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION *);
-	HRESULT Advise(ICredentialProviderEvents *, UINT_PTR);
-	HRESULT UnAdvise();
-	HRESULT GetFieldDescriptorCount(DWORD *);
-	HRESULT GetFieldDescriptorAt(DWORD, CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR **);
-	HRESULT GetCredentialCount(DWORD *, DWORD *, BOOL *);
-	HRESULT GetCredentialAt(DWORD, ICredentialProviderCredential **);
+	virtual HRESULT SetUsageScenario(CREDENTIAL_PROVIDER_USAGE_SCENARIO, DWORD);
+	virtual HRESULT SetSerialization(const CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION *);
+	virtual HRESULT Advise(ICredentialProviderEvents *, UINT_PTR);
+	virtual HRESULT UnAdvise();
+	virtual HRESULT GetFieldDescriptorCount(DWORD *);
+	virtual HRESULT GetFieldDescriptorAt(DWORD, CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR **);
+	virtual HRESULT GetCredentialCount(DWORD *, DWORD *, BOOL *);
+	virtual HRESULT GetCredentialAt(DWORD, ICredentialProviderCredential **);
 };

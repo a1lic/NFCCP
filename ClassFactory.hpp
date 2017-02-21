@@ -13,10 +13,10 @@ private:
 	~CClassFactory();
 public:
 	// IUnknown
-	HRESULT QueryInterface(REFIID, void **);
-	ULONG AddRef();
-	ULONG Release();
+	virtual HRESULT QueryInterface(REFIID, void **);
+	virtual ULONG AddRef();
+	virtual ULONG Release();
 	// IClassFactory
-	HRESULT CreateInstance(IUnknown *, REFIID, void **);
-	HRESULT LockServer(BOOL);
+	virtual HRESULT CreateInstance(IUnknown *, REFIID, void **);
+	virtual HRESULT LockServer(BOOL);
 };

@@ -15,13 +15,18 @@ const FIELD_STATE_PAIR CCredentialProvider::field_states[] = {
 
 CCredentialProvider::CCredentialProvider()
 {
+	DebugPrint(L"%hs(%p)::%hs", "CCredentialProvider", this, "CCredentialProvider");
 	this->instances = 0UL;
 	this->AddRef();
 
-	this->fields = new CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR[2];
+	this->fields = new CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR[3];
 	for(int i = 0; i < 3; i++)
 	{
 		this->fields[i] = _fields[i];
+		if(_fields[i].pszLabel)
+		{
+			SHStrDupW(_fields[i].pszLabel, &(this->fields[i].pszLabel));
+		}
 	}
 
 	this->renew_credentials = true;
@@ -30,10 +35,19 @@ CCredentialProvider::CCredentialProvider()
 
 CCredentialProvider::~CCredentialProvider()
 {
+	DebugPrint(L"%hs(%p)::%hs", "CCredentialProvider", this, "~CCredentialProvider");
 	if(this->credential)
 	{
 		this->credential->Release();
 		this->credential = nullptr;
+	}
+	for(int i = 0; i < 3; i++)
+	{
+		if(this->fields[i].pszLabel)
+		{
+			CoTaskMemFree(this->fields[i].pszLabel);
+			this->fields[i].pszLabel = nullptr;
+		}
 	}
 	delete this->fields;
 }
@@ -52,23 +66,25 @@ HRESULT CCredentialProvider::QueryInterface(REFIID riid, void ** ppvObject)
 
 ULONG CCredentialProvider::AddRef()
 {
-	_InterlockedIncrement(&global_instances);
-	return _InterlockedIncrement(&this->instances);
+	global_instances++;
+	return ++(this->instances);
 }
 
 ULONG CCredentialProvider::Release()
 {
-	auto decr = _InterlockedDecrement(&this->instances);
-	if(decr == 0UL)
+	global_instances--;
+	auto new_count = --(this->instances);
+	if(new_count == 0)
 	{
 		delete this;
 	}
-	_InterlockedDecrement(&global_instances);
-	return decr;
+	return new_count;
 }
 
 HRESULT CCredentialProvider::SetUsageScenario(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus, DWORD dwFlags)
 {
+	DebugPrint(L"%hs(%p)::%hs", "CCredentialProvider", this, "SetUsageScenario");
+	HRESULT r;
 
 	switch(cpus)
 	{
@@ -78,16 +94,20 @@ HRESULT CCredentialProvider::SetUsageScenario(CREDENTIAL_PROVIDER_USAGE_SCENARIO
 		this->usage_scenario = cpus;
 		this->valid_scenario = true;
 		this->renew_credentials = true;
-		return S_OK;
+		r = S_OK;
+		break;
 
 	case CREDENTIAL_PROVIDER_USAGE_SCENARIO::CPUS_CHANGE_PASSWORD:
 		this->valid_scenario = false;
-		return E_NOTIMPL;
+		r = E_NOTIMPL;
+		break;
 
 	default:
 		this->valid_scenario = false;
-		return E_INVALIDARG;
+		r = E_INVALIDARG;
+		break;
 	}
+	return r;
 }
 
 HRESULT CCredentialProvider::SetSerialization(const CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION * pcpcs)
@@ -107,32 +127,31 @@ HRESULT CCredentialProvider::UnAdvise()
 
 HRESULT CCredentialProvider::GetFieldDescriptorCount(DWORD *pdwCount)
 {
+	DebugPrint(L"%hs(%p)::%hs", "CCredentialProvider", this, "GetFieldDescriptorCount");
 	*pdwCount = 3;
 	return S_OK;
 }
 
 HRESULT CCredentialProvider::GetFieldDescriptorAt(DWORD dwIndex, CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR ** ppcpfd)
 {
+	DebugPrint(L"%hs(%p)::%hs", "CCredentialProvider", this, "GetFieldDescriptorAt");
 	if(dwIndex >= 3)
 	{
 		return E_INVALIDARG;
 	}
 
-	auto desc = static_cast<CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR*>(CoTaskMemAlloc(sizeof(CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR)));
-	*desc = this->fields[dwIndex];
-
+	*ppcpfd = static_cast<CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR*>(CoTaskMemAlloc(sizeof(CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR)));
+	**ppcpfd = this->fields[dwIndex];
 	if(this->fields[dwIndex].pszLabel)
 	{
-		SHStrDupW(this->fields[dwIndex].pszLabel, &desc->pszLabel);
+		SHStrDupW(this->fields[dwIndex].pszLabel, &(*ppcpfd)->pszLabel);
 	}
-
-	*ppcpfd = desc;
-
 	return S_OK;
 }
 
 HRESULT CCredentialProvider::GetCredentialCount(DWORD * pdwCount, DWORD * pdwDefault, BOOL * pbAutoLogonWithDefault)
 {
+	DebugPrint(L"%hs(%p)::%hs", "CCredentialProvider", this, "GetCredentialCount");
 	if(this->renew_credentials)
 	{
 		this->renew_credentials = false;
@@ -149,13 +168,14 @@ HRESULT CCredentialProvider::GetCredentialCount(DWORD * pdwCount, DWORD * pdwDef
 
 	*pdwCount = 1;
 	*pdwDefault = CREDENTIAL_PROVIDER_NO_DEFAULT;
-	*pbAutoLogonWithDefault = FALSE;
+	*pbAutoLogonWithDefault = TRUE;
 
 	return S_OK;
 }
 
 HRESULT CCredentialProvider::GetCredentialAt(DWORD dwIndex, ICredentialProviderCredential ** ppcpc)
 {
+	DebugPrint(L"%hs(%p)::%hs", "CCredentialProvider", this, "GetCredentialAt");
 	if(dwIndex != 0)
 	{
 		return E_INVALIDARG;

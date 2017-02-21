@@ -1,5 +1,6 @@
 ﻿#include "ClassFactory.hpp"
 #include <Credentialprovider.h>
+#include <Shlwapi.h>
 #include "Util.hpp"
 #include "Provider.hpp"
 #include "Filter.hpp"
@@ -16,38 +17,31 @@ CClassFactory::~CClassFactory()
 
 HRESULT CClassFactory::QueryInterface(REFIID riid, void ** ppvObject)
 {
-	if(riid == __uuidof(IUnknown))
-	{
-		this->AddRef();
-		*ppvObject = this;
-	}
-	else if(riid == __uuidof(IClassFactory))
-	{
-		this->AddRef();
-		*ppvObject = this;
-	}
-	else
-	{
-		*ppvObject = nullptr;
-	}
-	return *ppvObject ? S_OK : E_NOINTERFACE;
+#pragma warning(push)
+#pragma warning(disable:4838)
+	static const QITAB interfaces[] = {
+		QITABENT(CClassFactory, IClassFactory),
+		{}
+	};
+#pragma warning(pop)
+	return QISearch(this, interfaces, riid, ppvObject);
 }
 
 ULONG CClassFactory::AddRef()
 {
-	_InterlockedIncrement(&global_instances);
-	return _InterlockedIncrement(&this->instances);
+	global_instances++;
+	return ++(this->instances);
 }
 
 ULONG CClassFactory::Release()
 {
-	auto decr = _InterlockedDecrement(&this->instances);
-	if(decr == 0UL)
+	global_instances--;
+	auto new_count = --(this->instances);
+	if(new_count == 0)
 	{
 		delete this;
 	}
-	_InterlockedDecrement(&global_instances);
-	return decr;
+	return new_count;
 }
 
 extern "C" void guid_to_string(const GUID &, wchar_t *);

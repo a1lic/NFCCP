@@ -13,10 +13,10 @@ private:
 	~CCredentialProviderFilter();
 public:
 	// IUnknown
-	HRESULT QueryInterface(REFIID, void **);
-	ULONG AddRef();
-	ULONG Release();
+	virtual HRESULT QueryInterface(REFIID, void **);
+	virtual ULONG AddRef();
+	virtual ULONG Release();
 	// ICredentialProviderFilter
-	HRESULT Filter(CREDENTIAL_PROVIDER_USAGE_SCENARIO, DWORD, GUID *, BOOL *, DWORD);
-	HRESULT UpdateRemoteCredential(const CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION *, CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION *);
+	virtual HRESULT Filter(CREDENTIAL_PROVIDER_USAGE_SCENARIO, DWORD, GUID *, BOOL *, DWORD);
+	virtual HRESULT UpdateRemoteCredential(const CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION *, CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION *);
 };

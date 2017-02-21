@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
+#include <wincred.h>
+#include <Ole2.h>
 #include "SmartCardHelper.hpp"
 
 enum StandardIO { Input, Output, Error };
@@ -69,19 +71,57 @@ extern "C" void CALLBACK TestA(HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine, in
 	MessageBoxW(hwnd, L"このメッセージはでないはずだよ。", nullptr, MB_ICONHAND);
 }
 
-extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, int nCmdShow)
+extern "C" void show_credential_dialog()
 {
-	//if(IsDebuggerPresent())
-	//{
-	//	__debugbreak();
-	//}
+	WCHAR       szUserName[256];
+	WCHAR       szDomainName[256];
+	WCHAR       szPassword[256];
+	DWORD       dwUserNameSize = sizeof(szUserName) / sizeof(WCHAR);
+	DWORD       dwDomainSize = sizeof(szDomainName) / sizeof(WCHAR);
+	DWORD       dwPasswordSize = sizeof(szPassword) / sizeof(WCHAR);
+	DWORD       dwResult;
+	DWORD       dwOutBufferSize;
+	PVOID       pOutBuffer;
+	ULONG       uAuthPackage = 0;
+	CREDUI_INFOW uiInfo;
+	HANDLE      hToken;
 
-	AllocConsole();
-	AttachConsole(GetCurrentProcessId());
-	open_stdio(StandardIO::Input);
-	open_stdio(StandardIO::Output);
-	open_stdio(StandardIO::Error);
+	uiInfo.cbSize = sizeof(CREDUI_INFO);
+	uiInfo.hwndParent = NULL;
+	uiInfo.pszMessageText = L"message";
+	uiInfo.pszCaptionText = L"caption";
+	uiInfo.hbmBanner = NULL;
 
+	dwOutBufferSize = 1024;
+	pOutBuffer = (PVOID)LocalAlloc(LPTR, dwOutBufferSize);
+
+	dwResult = CredUIPromptForWindowsCredentialsW(&uiInfo, 0, &uAuthPackage, NULL, 0, &pOutBuffer, &dwOutBufferSize, NULL, 0);
+	if(dwResult != ERROR_SUCCESS)
+	{
+		LocalFree(pOutBuffer);
+		return;
+	}
+
+	CredUnPackAuthenticationBufferW(0, pOutBuffer, dwOutBufferSize, szUserName, &dwUserNameSize, szDomainName, &dwDomainSize, szPassword, &dwPasswordSize);
+
+	szUserName[dwUserNameSize] = '\0';
+	szPassword[dwPasswordSize] = '\0';
+	wprintf_s(L"User=%s,Pass=%s\n", szUserName, szPassword);
+
+	if(LogonUserW(szUserName, NULL, szPassword, LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT, &hToken))
+		CloseHandle(hToken);
+	else
+		wprintf_s(L"ログオンに失敗。(%u)\n", GetLastError());
+
+	RtlSecureZeroMemory(szPassword, sizeof(szPassword));
+	RtlSecureZeroMemory(pOutBuffer, dwOutBufferSize);
+	LocalFree(pOutBuffer);
+
+	_getwch();
+}
+
+extern "C" void test_smartcard_class()
+{
 	SmartCardHelper * h = new SmartCardHelper();
 
 	if(h->GetReadersCount() == 0)
@@ -118,6 +158,26 @@ extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, i
 	h->UnwatchAll();
 
 	delete h;
+}
+
+extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, int nCmdShow)
+{
+	//if(IsDebuggerPresent())
+	//{
+	//	__debugbreak();
+	//}
+
+	AllocConsole();
+	AttachConsole(GetCurrentProcessId());
+	open_stdio(StandardIO::Input);
+	open_stdio(StandardIO::Output);
+	open_stdio(StandardIO::Error);
+
+	CoInitializeEx(nullptr, COINIT_DISABLE_OLE1DDE | COINIT_APARTMENTTHREADED);
+	show_credential_dialog();
+	CoUninitialize();
+
+	//test_smartcard_class();
 
 	close_stdio(StandardIO::Error);
 	close_stdio(StandardIO::Output);
