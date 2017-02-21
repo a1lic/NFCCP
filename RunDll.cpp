@@ -134,17 +134,17 @@ extern "C" void test_smartcard_class()
 	wprintf_s(L"%u台のカードリーダーが見つかりました。\n", h->GetReadersCount());
 
 	// カードがセットされたらIDを出力する処理を登録
-	h->RegisterConnectionHandler([](SmartCardReader *x, SmartCard *c, void *)
+	h->RegisterConnectionHandler([](ConnectionInfo * ci)
 		{
-			auto id = c->GetID();
-			auto rname = x->GetName();
+			auto id = ci->Card->GetID();
+			auto rname = ci->Reader->GetName();
 			wprintf_s(L"[%s]カードを認識しました。(ID:%s)\n", rname.c_str(), id.c_str());
 		});
 	// カードが外された時の処理
-	h->RegisterDisconnectionHandler([](SmartCardReader *x, SmartCard *c, void *)
+	h->RegisterDisconnectionHandler([](ConnectionInfo * ci)
 		{
-			auto id = c->GetID();
-			auto rname = x->GetName();
+			auto id = ci->Card->GetID();
+			auto rname = ci->Reader->GetName();
 			wprintf_s(L"[%s]カードが外されました。(ID:%s)\n", rname.c_str(), id.c_str());
 		});
 	// 監視を開始
