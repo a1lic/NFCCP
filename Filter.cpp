@@ -1,4 +1,5 @@
-﻿#include "ClassDef.hpp"
+﻿#include "Filter.hpp"
+#include "Util.hpp"
 
 CCredentialProviderFilter::CCredentialProviderFilter()
 {

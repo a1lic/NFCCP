@@ -1,5 +1,7 @@
-﻿#include "ClassDef.hpp"
+﻿#include <Windows.h>
 #include <string>
+#include "Util.hpp"
+#include "ClassFactory.hpp"
 
 void * dll;
 ULONG global_instances;

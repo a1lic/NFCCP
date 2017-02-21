@@ -1,4 +1,5 @@
-﻿#include "ClassDef.hpp"
+﻿#include "Provider.hpp"
+#include "Util.hpp"
 #include <ShlGuid.h>
 #include <Shlwapi.h>
 

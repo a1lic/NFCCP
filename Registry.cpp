@@ -1,6 +1,7 @@
-﻿#include "ClassDef.hpp"
+﻿#include <Windows.h>
 #include <ktmw32.h>
 #include <string>
+#include "ClassFactory.hpp"
 
 extern ULONG global_instances;
 extern std::wstring * module_path;

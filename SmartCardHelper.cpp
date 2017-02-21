@@ -1,5 +1,6 @@
-﻿#include "ClassDef.hpp"
+﻿#include "SmartCardHelper.hpp"
 #include <process.h>
+#include "Util.hpp"
 
 SmartCard::SmartCard(SCARDCONTEXT context, SCARDHANDLE handle)
 {

@@ -99,15 +99,20 @@
   <ItemGroup>
     <ClCompile Include="ClassFactory.cpp" />
     <ClCompile Include="Credential.cpp" />
-    <ClCompile Include="CredentialProvider.cpp" />
-    <ClCompile Include="CredentialProviderFilter.cpp" />
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="Filter.cpp" />
+    <ClCompile Include="Provider.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="RunDll.cpp" />
     <ClCompile Include="SmartCardHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ClassDef.hpp" />
+    <ClInclude Include="ClassFactory.hpp" />
+    <ClInclude Include="Credential.hpp" />
+    <ClInclude Include="Filter.hpp" />
+    <ClInclude Include="Provider.hpp" />
+    <ClInclude Include="SmartCardHelper.hpp" />
+    <ClInclude Include="Util.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />

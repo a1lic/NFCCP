@@ -1,4 +1,8 @@
-﻿#include "ClassDef.hpp"
+﻿#include "ClassFactory.hpp"
+#include <Credentialprovider.h>
+#include "Util.hpp"
+#include "Provider.hpp"
+#include "Filter.hpp"
 
 CClassFactory::CClassFactory()
 {

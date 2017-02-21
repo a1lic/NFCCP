@@ -1,5 +1,7 @@
-﻿#include "ClassDef.hpp"
+﻿#include "Credential.hpp"
 #include <Shlwapi.h>
+#include "Util.hpp"
+#include "Provider.hpp"
 
 CCredentialProviderCredential::CCredentialProviderCredential()
 {
@@ -155,10 +157,12 @@ HRESULT CCredentialProviderCredential::CommandLinkClicked(DWORD)
 
 HRESULT CCredentialProviderCredential::GetSerialization(CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE * pcpgsr, CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION *, LPWSTR * ppwszOptionalStatusText, CREDENTIAL_PROVIDER_STATUS_ICON * pcpsiOptionalStatusIcon)
 {
-	MessageBoxFmt(this->parent, L"CCredentialProviderCredential::GetSerialization", 0, L"");
-	*pcpgsr = CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE::CPGSR_RETURN_NO_CREDENTIAL_FINISHED;
-	*ppwszOptionalStatusText = nullptr;
-	*pcpsiOptionalStatusIcon = CREDENTIAL_PROVIDER_STATUS_ICON::CPSI_SUCCESS;
+	*pcpgsr = CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE::CPGSR_NO_CREDENTIAL_NOT_FINISHED;
+	SHStrDupW(L"カードを認識できませんでした。", ppwszOptionalStatusText);
+	*pcpsiOptionalStatusIcon = CREDENTIAL_PROVIDER_STATUS_ICON::CPSI_ERROR;
+
+	// ここでSmartCardHelperと連携
+
 	return S_OK;
 }
 

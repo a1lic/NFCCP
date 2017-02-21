@@ -1,10 +1,11 @@
-﻿#include "ClassDef.hpp"
+﻿#include <Windows.h>
 #include <winscard.h>
 #include <string>
 #include <vector>
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
+#include "SmartCardHelper.hpp"
 
 enum StandardIO { Input, Output, Error };
 
