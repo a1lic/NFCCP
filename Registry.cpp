@@ -6,6 +6,10 @@
 extern ULONG global_instances;
 extern std::wstring * module_path;
 
+const wchar_t * provider_paths[] = {
+	L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\Credential Providers",
+	L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\Credential Provider Filters"};
+
 extern "C" void guid_to_string(const GUID & class_id, wchar_t * str)
 {
 	static const wchar_t padding_hex[9] = L"00000000";
@@ -126,26 +130,29 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 
 	RegCloseKey(key);
 
-	result = RegOpenKeyTransactedW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\Credential Providers", 0UL, KEY_CREATE_SUB_KEY | KEY_SET_VALUE, &key, transaction, nullptr);
-	if(result != ERROR_SUCCESS)
+	for(int i = 0; i < 2; i++)
 	{
-		CloseHandle(transaction);
-		return E_FAIL;
-	}
+		result = RegOpenKeyTransactedW(HKEY_LOCAL_MACHINE, provider_paths[i], 0UL, KEY_CREATE_SUB_KEY | KEY_SET_VALUE, &key, transaction, nullptr);
+		if(result != ERROR_SUCCESS)
+		{
+			CloseHandle(transaction);
+			return E_FAIL;
+		}
 
-	HKEY subkey;
-	wchar_t class_factory_id[39];
-	guid_to_string(__uuidof(CClassFactory), class_factory_id);
-	result = RegCreateKeyW(key, class_factory_id, &subkey);
-	if(result != ERROR_SUCCESS)
-	{
-		CloseHandle(key);
-		CloseHandle(transaction);
-		return E_FAIL;
-	}
-	RegSetValueExW(subkey, nullptr, 0UL, REG_SZ, (const BYTE*)L"Suica® 資格情報プロバイダー", (DWORD)(sizeof(wchar_t) * 16));
+		HKEY subkey;
+		wchar_t class_factory_id[39];
+		guid_to_string(__uuidof(CClassFactory), class_factory_id);
+		result = RegCreateKeyW(key, class_factory_id, &subkey);
+		if(result != ERROR_SUCCESS)
+		{
+			CloseHandle(key);
+			CloseHandle(transaction);
+			return E_FAIL;
+		}
+		RegSetValueExW(subkey, nullptr, 0UL, REG_SZ, (const BYTE*)L"Suica® 資格情報プロバイダー", (DWORD)(sizeof(wchar_t) * 16));
 
-	RegCloseKey(key);
+		RegCloseKey(key);
+	}
 
 	CommitTransaction(transaction);
 	CloseHandle(transaction);
@@ -178,16 +185,19 @@ extern "C" HRESULT __stdcall DllUnregisterServer()
 	}
 	RegCloseKey(key);
 
-	result = RegOpenKeyTransactedW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\Credential Providers", 0UL, DELETE | KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS, &key, transaction, nullptr);
-	if(result != ERROR_SUCCESS)
+	for(int i = 0; i < 2; i++)
 	{
-		CloseHandle(transaction);
-		return E_FAIL;
+		result = RegOpenKeyTransactedW(HKEY_LOCAL_MACHINE, provider_paths[i], 0UL, DELETE | KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS, &key, transaction, nullptr);
+		if(result != ERROR_SUCCESS)
+		{
+			CloseHandle(transaction);
+			return E_FAIL;
+		}
+		wchar_t class_factory_id[39];
+		guid_to_string(__uuidof(CClassFactory), class_factory_id);
+		RegDeleteTreeW(key, class_factory_id);
+		RegCloseKey(key);
 	}
-	wchar_t class_factory_id[39];
-	guid_to_string(__uuidof(CClassFactory), class_factory_id);
-	RegDeleteTreeW(key, class_factory_id);
-	RegCloseKey(key);
 
 	CommitTransaction(transaction);
 	CloseHandle(transaction);
