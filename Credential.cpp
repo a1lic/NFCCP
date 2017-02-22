@@ -96,7 +96,6 @@ HRESULT CCredentialProviderCredential::Advise(ICredentialProviderCredentialEvent
 HRESULT CCredentialProviderCredential::UnAdvise()
 {
 	DebugPrint(L"%hs(%p)::%hs", "CCredentialProviderCredential", this, "UnAdvise");
-	__debugbreak();
 	if(this->events)
 	{
 		this->events->Release();
