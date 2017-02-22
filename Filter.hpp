@@ -7,7 +7,7 @@ class CCredentialProviderFilter : public ICredentialProviderFilter
 {
 private:
 	ULONG instances;
-	static const GUID blacklist[7];
+	static const GUID blacklist[4];
 public:
 	CCredentialProviderFilter();
 private:

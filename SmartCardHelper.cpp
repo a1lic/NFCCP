@@ -1,5 +1,6 @@
 ﻿#include "SmartCardHelper.hpp"
 #include <process.h>
+#include <minmax.h>
 #include "Util.hpp"
 
 SmartCard::SmartCard(SCARDCONTEXT context, SCARDHANDLE handle)
@@ -82,6 +83,11 @@ std::wstring SmartCard::GetID()
 		first_element = false;
 	}
 	return str;
+}
+
+void SmartCard::PutIDToBinary(unsigned char * buffer)
+{
+	memcpy(buffer, this->id.data(), 8);
 }
 
 SmartCardReader::SmartCardReader(SCARDCONTEXT context, const wchar_t * reader_name)

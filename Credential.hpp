@@ -12,6 +12,10 @@ private:
 	HWND parent;
 	IQueryContinueWithStatus * query_continue;
 	SmartCardHelper * scard;
+public:
+	unsigned char card_id[8];
+	static const unsigned char card_id_null[8];
+private:
 	HANDLE query_continue_thread;
 	bool kill_thread;
 public:

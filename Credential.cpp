@@ -1,9 +1,15 @@
 ﻿#define OEMRESOURCE
+#define SECURITY_WIN32
 #include "Credential.hpp"
 #include <Shlwapi.h>
+#include <NTSecAPI.h>
+#include <sspi.h>
 #include <process.h>
 #include "Util.hpp"
 #include "Provider.hpp"
+#include "ClassFactory.hpp"
+
+const unsigned char CCredentialProviderCredential::card_id_null[8] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
 
 CCredentialProviderCredential::CCredentialProviderCredential()
 {
@@ -14,6 +20,8 @@ CCredentialProviderCredential::CCredentialProviderCredential()
 	this->parent = nullptr;
 	this->query_continue = nullptr;
 
+	memcpy(this->card_id, CCredentialProviderCredential::card_id_null, 8);
+
 	this->scard = new SmartCardHelper();
 
 	this->scard->RegisterConnectionHandler([](ConnectionInfo * ci) {
@@ -22,6 +30,7 @@ CCredentialProviderCredential::CCredentialProviderCredential()
 		if(e)
 		{
 			auto id = ci->Card->GetID();
+			ci->Card->PutIDToBinary(_this->card_id);
 			e->SetFieldString(_this, 2, id.c_str());
 			e->Release();
 		}
@@ -34,6 +43,7 @@ CCredentialProviderCredential::CCredentialProviderCredential()
 			e->SetFieldString(_this, 2, CCredentialProvider::_fields[2].pszLabel);
 			e->Release();
 		}
+		memcpy(_this->card_id, CCredentialProviderCredential::card_id_null, 8);
 	}, this);
 
 	this->scard->WatchAll();
@@ -192,14 +202,53 @@ HRESULT CCredentialProviderCredential::CommandLinkClicked(DWORD)
 	return E_NOTIMPL;
 }
 
-HRESULT CCredentialProviderCredential::GetSerialization(CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE * pcpgsr, CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION *, LPWSTR * ppwszOptionalStatusText, CREDENTIAL_PROVIDER_STATUS_ICON * pcpsiOptionalStatusIcon)
+HRESULT CCredentialProviderCredential::GetSerialization(CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE * pcpgsr, CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION * pcpcs, LPWSTR * ppwszOptionalStatusText, CREDENTIAL_PROVIDER_STATUS_ICON * pcpsiOptionalStatusIcon)
 {
 	DebugPrint(L"%hs(%p)::%hs", "CCredentialProviderCredential", this, "GetSerialization");
 	*pcpgsr = CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE::CPGSR_RETURN_NO_CREDENTIAL_FINISHED;
 	//SHStrDupW(L"カードを認識できませんでした。", ppwszOptionalStatusText);
 	//*pcpsiOptionalStatusIcon = CREDENTIAL_PROVIDER_STATUS_ICON::CPSI_ERROR;
 
-	// ここでSmartCardHelperと連携
+	if(!memcmp(this->card_id, CCredentialProviderCredential::card_id_null, 8))
+	{
+		return S_OK;
+	}
+
+	NTSTATUS st;
+
+	HANDLE lsa;
+	st = LsaConnectUntrusted(&lsa);
+	if(st != 0)
+	{
+		DebugPrint(L"%hs fail (%08X)", "LsaConnectUntrusted", st);
+		return E_FAIL;
+	}
+
+	static const LSA_STRING msv1_0_package = {sizeof(MSV1_0_PACKAGE_NAME)-1, sizeof(MSV1_0_PACKAGE_NAME)-1, MSV1_0_PACKAGE_NAME};
+	st = LsaLookupAuthenticationPackage(lsa, const_cast<LSA_STRING*>(&msv1_0_package), &pcpcs->ulAuthenticationPackage);
+	if(st != 0)
+	{
+		LsaDeregisterLogonProcess(lsa);
+		DebugPrint(L"%hs fail (%08X)", "LsaLookupAuthenticationPackage", st);
+		return E_FAIL;
+	}
+
+	LsaDeregisterLogonProcess(lsa);
+
+	pcpcs->clsidCredentialProvider = __uuidof(CClassFactory);
+
+
+	pcpcs->cbSerialization = 8;
+	pcpcs->rgbSerialization = static_cast<byte*>(CoTaskMemAlloc(sizeof(SEC_WINNT_AUTH_IDENTITY_EX2)));
+
+	auto nt_auth_id = reinterpret_cast<SEC_WINNT_AUTH_IDENTITY_EX2*>(pcpcs->rgbSerialization);
+	nt_auth_id->Version = SEC_WINNT_AUTH_IDENTITY_VERSION_2;
+
+
+	memcpy(pcpcs->rgbSerialization, this->card_id, 8);
+
+	DebugPrint(L"Serialization done.");
+	*pcpgsr = CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE::CPGSR_RETURN_CREDENTIAL_FINISHED;
 
 	return S_OK;
 }

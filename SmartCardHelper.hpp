@@ -31,6 +31,7 @@ public:
 	SmartCard(SCARDCONTEXT, SCARDHANDLE);
 	~SmartCard();
 	std::wstring GetID();
+	void PutIDToBinary(unsigned char *);
 	inline SCARDHANDLE GetHandle() { return this->handle; }
 };
 
