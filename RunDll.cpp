@@ -99,6 +99,7 @@ extern "C" void show_credential_dialog()
 	if(dwResult != ERROR_SUCCESS)
 	{
 		LocalFree(pOutBuffer);
+		_getwch();
 		return;
 	}
 

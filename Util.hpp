@@ -4,6 +4,7 @@
 extern ULONG global_instances;
 
 extern "C" int MessageBoxFmt(HWND, const wchar_t *, UINT, const wchar_t *, ...);
+extern "C" void guid_to_string(const GUID &, wchar_t *);
 
 #if defined(_DEBUG)
 extern "C" void DebugPrint(const wchar_t *, ...);
