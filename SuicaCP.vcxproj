@@ -102,6 +102,7 @@
     <ClCompile Include="Credential.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Filter.cpp" />
+    <ClCompile Include="Lsa.cpp" />
     <ClCompile Include="Provider.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="RunDll.cpp" />

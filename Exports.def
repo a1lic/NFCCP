@@ -1,7 +1,18 @@
 EXPORTS
+	; COM object/regsvr32
 	DllCanUnloadNow     PRIVATE
 	DllGetClassObject   PRIVATE
 	DllRegisterServer   PRIVATE
 	DllUnregisterServer PRIVATE
-	TestA               PRIVATE
-	TestW               PRIVATE
+	; rundll32
+	TestA PRIVATE
+	TestW PRIVATE
+	; LSA
+	LsaApCallPackage            PRIVATE
+	LsaApCallPackagePassthrough PRIVATE
+	LsaApCallPackageUntrusted   PRIVATE
+	LsaApInitializePackage      PRIVATE
+	LsaApLogonTerminated        PRIVATE
+	LsaApLogonUser              PRIVATE
+	LsaApLogonUserEx            PRIVATE
+	LsaApLogonUserEx2           PRIVATE
