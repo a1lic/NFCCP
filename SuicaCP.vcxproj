@@ -112,6 +112,7 @@
     <ClInclude Include="ClassFactory.hpp" />
     <ClInclude Include="Credential.hpp" />
     <ClInclude Include="Filter.hpp" />
+    <ClInclude Include="Lsa.hpp" />
     <ClInclude Include="Provider.hpp" />
     <ClInclude Include="SmartCardHelper.hpp" />
     <ClInclude Include="Util.hpp" />

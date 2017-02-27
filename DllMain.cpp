@@ -3,15 +3,23 @@
 #include "Util.hpp"
 #include "ClassFactory.hpp"
 
+using std::wstring;
+
 void * dll;
 ULONG global_instances;
-std::wstring * module_path;
+wstring * module_path;
+
+wstring * database;
+wstring * confidentiality;
 
 extern "C" bool dll_process_attach()
 {
 	DebugPrint(L"Start DLL_PROCESS_ATTACH");
 	DisableThreadLibraryCalls(static_cast<HMODULE>(dll));
 	global_instances = 0;
+
+	database = new wstring;
+	confidentiality = new wstring;
 
 	// DllRegisterServerで使用するフルパスを取得
 	// Windows 10以降ではMAX_PATHを超えることが可能になったのでその対策
@@ -35,7 +43,7 @@ extern "C" bool dll_process_attach()
 		}
 	}
 
-	module_path = new std::wstring(_module_path);
+	module_path = new wstring(_module_path);
 	delete _module_path;
 
 	DebugPrint(L"Module path:%s", module_path->c_str());
@@ -48,6 +56,8 @@ extern "C" void dll_process_detach()
 {
 	DebugPrint(L"Start DLL_PROCESS_DETACH");
 	delete module_path;
+	delete confidentiality;
+	delete database;
 	DebugPrint(L"End DLL_PROCESS_DETACH");
 }
 
