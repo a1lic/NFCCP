@@ -70,7 +70,7 @@ LSA_STRING * CreateLsaString(const wchar_t * s, bool nullable)
 	auto wsize = static_cast<int>(wcsnlen(s, INT_MAX));
 	// UTF-7に変換した際のサイズをチェック
 	auto newsize = WideCharToMultiByte(CP_UTF7, 0, s, wsize, nullptr, 0, nullptr, nullptr);
-	if(nullable && (newsize <= 1))
+	if(nullable && (newsize <= 0))
 	{
 		// 変換結果が空文字列でLSA_STRINGを生成しない場合はそのまま終了
 		return nullptr;
@@ -82,7 +82,7 @@ LSA_STRING * CreateLsaString(const wchar_t * s, bool nullable)
 		return nullptr;
 	}
 
-	if(newsize <= 1)
+	if(newsize <= 0)
 	{
 		// 変換結果が空文字列になる場合、長さ0としてLSA_STRINGを返す
 		name->Length = 0;
@@ -99,10 +99,9 @@ LSA_STRING * CreateLsaString(const wchar_t * s, bool nullable)
 	}
 
 	// LSA_STRINGを生成
-	name->Length = newsize - 1;
-	// 最大長は一応null文字が入るようにする
+	name->Length = newsize;
 	name->MaximumLength = newsize;
-	name->Buffer = static_cast<char*>((*AllocateLsaHeap)(name->MaximumLength));
+	name->Buffer = static_cast<char*>((*AllocateLsaHeap)(newsize));
 
 	if(!name->Buffer)
 	{
@@ -112,7 +111,7 @@ LSA_STRING * CreateLsaString(const wchar_t * s, bool nullable)
 	}
 
 	// 変換実行
-	WideCharToMultiByte(CP_UTF7, 0, s, wsize, name->Buffer, name->MaximumLength, nullptr, nullptr);
+	WideCharToMultiByte(CP_UTF7, 0, s, wsize, name->Buffer, newsize, nullptr, nullptr);
 
 	return name;
 }
