@@ -14,8 +14,8 @@ wstring * confidentiality;
 
 extern "C" bool dll_process_attach()
 {
-	DebugPrint(L"Start DLL_PROCESS_ATTACH");
 	DisableThreadLibraryCalls(static_cast<HMODULE>(dll));
+	DebugPrint(L"Start DLL_PROCESS_ATTACH");
 	global_instances = 0;
 
 	database = new wstring;
@@ -34,7 +34,7 @@ extern "C" bool dll_process_attach()
 		{
 			break;
 		}
-		delete _module_path;
+		delete[] _module_path;
 		_module_path_chars += 256;
 		if(_module_path_chars >= 65536)
 		{
@@ -44,7 +44,7 @@ extern "C" bool dll_process_attach()
 	}
 
 	module_path = new wstring(_module_path);
-	delete _module_path;
+	delete[] _module_path;
 
 	DebugPrint(L"Module path:%s", module_path->c_str());
 
@@ -108,7 +108,7 @@ extern "C" int MessageBoxFmt(HWND hWnd, const wchar_t * lpCaption, UINT uType, c
 	vswprintf_s(msg, 1024, lpText, ap);
 	va_end(ap);
 	auto r = MessageBoxW(hWnd, msg, lpCaption, uType);
-	delete msg;
+	delete[] msg;
 	return r;
 }
 
@@ -129,6 +129,6 @@ extern "C" void DebugPrint(const wchar_t * lpOutputString, ...)
 		wcscat_s(msg, 1024, L"\n");
 	}
 	OutputDebugStringW(msg);
-	delete msg;
+	delete[] msg;
 }
 #endif
