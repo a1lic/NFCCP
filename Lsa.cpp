@@ -45,10 +45,26 @@ void LoadLsaString(const LSA_STRING * l, wstring & s)
 
 LSA_STRING * CreateLsaString(const wchar_t * s, bool nullable)
 {
-	if(nullable && (!s || (wcslen(s) == 0)))
+	if(!s || (wcslen(s) == 0))
 	{
-		// 文字列無しでLSA_STRINGを生成しない場合はそのまま終了
-		return nullptr;
+		// 文字列が指定されていなかったか、長さ0だった場合…
+		if(nullable)
+		{
+			// LSA_STRINGを生成しない場合はそのまま終了
+			return nullptr;
+		}
+		else
+		{
+			// LSA_STRINGを返す場合は、長さ0のLSA_STRINGを返す
+			auto name = static_cast<LSA_STRING*>((*AllocateLsaHeap)(sizeof(LSA_STRING)));
+			if(name)
+			{
+				name->Buffer = nullptr;
+				name->Length = 0;
+				name->MaximumLength = 0;
+			}
+			return name;
+		}
 	}
 
 	auto wsize = static_cast<int>(wcsnlen(s, INT_MAX));
@@ -95,7 +111,7 @@ LSA_STRING * CreateLsaString(const wchar_t * s, bool nullable)
 		return nullptr;
 	}
 
-	// UNICODE_STRINGの文字列にコピー
+	// 変換実行
 	WideCharToMultiByte(CP_UTF7, 0, s, wsize, name->Buffer, name->MaximumLength, nullptr, nullptr);
 
 	return name;
@@ -108,10 +124,26 @@ LSA_STRING * CreateLsaString(wstring & s, bool nullable)
 
 UNICODE_STRING * CreateUnicodeString(wstring & s, bool nullable)
 {
-	if(nullable && s.empty())
+	if(s.empty())
 	{
-		// 文字列無しでUNICODE_STRINGを生成しない場合はそのまま終了
-		return nullptr;
+		// 文字列無しだった場合…
+		if(nullable)
+		{
+			// UNICODE_STRINGを生成しない場合はそのまま終了
+			return nullptr;
+		}
+		else
+		{
+			// UNICODE_STRINGを返す場合は、長さ0のLSA_STRINGを返す
+			auto name = static_cast<UNICODE_STRING*>((*AllocateLsaHeap)(sizeof(UNICODE_STRING)));
+			if(name)
+			{
+				name->Buffer = nullptr;
+				name->Length = 0;
+				name->MaximumLength = 0;
+			}
+			return name;
+		}
 	}
 
 	auto name = static_cast<UNICODE_STRING*>((*AllocateLsaHeap)(sizeof(UNICODE_STRING)));
