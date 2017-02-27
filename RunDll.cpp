@@ -1,4 +1,5 @@
-﻿#include <Windows.h>
+﻿#define WIN32_NO_STATUS
+#include <Windows.h>
 #include <winscard.h>
 #include <string>
 #include <vector>
@@ -8,6 +9,7 @@
 #include <wincred.h>
 #include <Ole2.h>
 #include "SmartCardHelper.hpp"
+#include "Lsa.hpp"
 
 enum StandardIO { Input, Output, Error };
 
@@ -171,6 +173,42 @@ extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, i
 	open_stdio(StandardIO::Input);
 	open_stdio(StandardIO::Output);
 	open_stdio(StandardIO::Error);
+
+	AllocateLsaHeap = [](ULONG s) { return reinterpret_cast<void*>(new unsigned char[s]); };
+	FreeLsaHeap = [](void * b) { delete[] static_cast<unsigned char*>(b); };
+
+	{
+		auto lsa_str = CreateLsaString(L"LSA String Test");
+		wprintf_s(L"LSA_STRING::Buffer=%hs\nLSA_STRING::Length=%u\nLSA_STRING::MaxLen=%u\n", lsa_str->Buffer, lsa_str->Length, lsa_str->MaximumLength);
+
+		wstring w;
+		LoadLsaString(lsa_str, w);
+		wprintf_s(L"復元:%s\n", w.c_str());
+
+		(*FreeLsaHeap)(lsa_str);
+	}
+
+	{
+		auto lsa_str = CreateLsaString(L"LSA 文字列テスト");
+		wprintf_s(L"LSA_STRING::Buffer=%hs\nLSA_STRING::Length=%u\nLSA_STRING::MaxLen=%u\n", lsa_str->Buffer, lsa_str->Length, lsa_str->MaximumLength);
+
+		wstring w;
+		LoadLsaString(lsa_str, w);
+		wprintf_s(L"復元:%s\n", w.c_str());
+
+		(*FreeLsaHeap)(lsa_str);
+	}
+
+	{
+		wstring w(L"UNICODE_STRINGテスト");
+		auto ustr = CreateUnicodeString(w);
+
+		wprintf_s(L"UNICODE_STRING::Buffer=%s\nUNICODE_STRING::Length=%u\nUNICODE_STRING::MaxLen=%u\n", ustr->Buffer, ustr->Length, ustr->MaximumLength);
+
+		(*FreeLsaHeap)(ustr);
+	}
+
+	_getwch();
 
 	CoInitializeEx(nullptr, COINIT_DISABLE_OLE1DDE | COINIT_APARTMENTTHREADED);
 	show_credential_dialog();
