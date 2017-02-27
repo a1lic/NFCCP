@@ -153,7 +153,7 @@ extern "C" NTSTATUS NTAPI LsaApCallPackage(
 	NTSTATUS *ProtocolStatus)
 {
 	DebugPrint(L"%hs", "LsaApCallPackage");
-	return STATUS_SUCCESS;
+	return STATUS_NOT_IMPLEMENTED;
 }
 
 extern "C" NTSTATUS NTAPI LsaApCallPackagePassthrough(
@@ -168,7 +168,7 @@ extern "C" NTSTATUS NTAPI LsaApCallPackagePassthrough(
 	NTSTATUS * ProtocolStatus)
 {
 	DebugPrint(L"%hs", "LsaApCallPackagePassthrough");
-	return STATUS_SUCCESS;
+	return STATUS_NOT_IMPLEMENTED;
 }
 
 extern "C" NTSTATUS NTAPI LsaApCallPackageUntrusted(
@@ -183,7 +183,7 @@ extern "C" NTSTATUS NTAPI LsaApCallPackageUntrusted(
 	NTSTATUS * ProtocolStatus)
 {
 	DebugPrint(L"%hs", "LsaApCallPackageUntrusted");
-	return STATUS_SUCCESS;
+	return STATUS_NOT_IMPLEMENTED;
 }
 
 extern "C" NTSTATUS NTAPI LsaApInitializePackage(
@@ -227,7 +227,7 @@ extern "C" NTSTATUS NTAPI LsaApInitializePackage(
 	}
 	*AuthenticationPackageName = package_name;
 
-	return STATUS_SUCCESS;
+	return STATUS_NOT_IMPLEMENTED;
 }
 
 extern "C" void NTAPI LsaApLogonTerminated(LUID * LogonId)
@@ -264,7 +264,7 @@ extern "C" NTSTATUS NTAPI LsaApLogonUser(
 	UNICODE_STRING ** AuthenticatingAuthority)
 {
 	DebugPrint(L"%hs", "LsaApLogonUser");
-	return STATUS_SUCCESS;
+	return STATUS_NOT_IMPLEMENTED;
 }
 
 extern "C" NTSTATUS NTAPI LsaApLogonUserEx(
@@ -286,7 +286,7 @@ extern "C" NTSTATUS NTAPI LsaApLogonUserEx(
 	UNICODE_STRING ** MachineName)
 {
 	DebugPrint(L"%hs", "LsaApLogonUserEx");
-	return STATUS_SUCCESS;
+	return STATUS_NOT_IMPLEMENTED;
 }
 
 extern "C" NTSTATUS NTAPI LsaApLogonUserEx2(
@@ -310,5 +310,5 @@ extern "C" NTSTATUS NTAPI LsaApLogonUserEx2(
 	SECPKG_SUPPLEMENTAL_CRED_ARRAY ** SupplementalCredentials)
 {
 	DebugPrint(L"%hs", "LsaApLogonUserEx2");
-	return STATUS_SUCCESS;
+	return STATUS_NOT_IMPLEMENTED;
 }
