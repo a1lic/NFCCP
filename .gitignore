@@ -1,7 +1,9 @@
 /.vs
 /cpsample
+/nfcsdk
 /x64
 /ARM
 /Win32
 *.db
 *.opendb
+*.aps
