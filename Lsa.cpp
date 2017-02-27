@@ -35,7 +35,8 @@ void LoadLsaString(const LSA_STRING * l, wstring & s)
 		return;
 	}
 
-	auto wstr = new wchar_t[newsize];
+	auto wstr = new wchar_t[1 + newsize];
+	wstr[newsize] = L'\0';
 	MultiByteToWideChar(CP_UTF7, 0, l->Buffer, l->Length, wstr, newsize);
 
 	s.assign(wstr);
