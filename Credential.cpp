@@ -1,5 +1,4 @@
 ﻿#define OEMRESOURCE
-#define SECURITY_WIN32
 #include "Credential.hpp"
 #include <Shlwapi.h>
 #include <NTSecAPI.h>

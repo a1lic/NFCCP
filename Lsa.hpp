@@ -3,9 +3,7 @@
 typedef long NTSTATUS, *PNTSTATUS;
 
 #include <ntstatus.h>
-
 #define WIN32_NO_STATUS
-#define SECURITY_WIN32
 
 #include <Windows.h>
 #include <LsaLookup.h>
