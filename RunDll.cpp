@@ -1,5 +1,8 @@
 ﻿#define WIN32_NO_STATUS
 #include <Windows.h>
+#undef WIN32_NO_STATUS
+#include <ntstatus.h>
+#define WIN32_NO_STATUS
 #include <winscard.h>
 #include <string>
 #include <vector>
@@ -10,6 +13,15 @@
 #include <Ole2.h>
 #include "SmartCardHelper.hpp"
 #include "Lsa.hpp"
+#include "SecIdentity.hpp"
+
+using std::vector;
+
+#undef NTSTATUS_FROM_WIN32
+extern "C" NTSTATUS NTSTATUS_FROM_WIN32(long x)
+{
+	return x <= 0 ? (NTSTATUS)x : (NTSTATUS)(((x) & 0x0000FFFF) | (FACILITY_NTWIN32 << 16) | ERROR_SEVERITY_ERROR);
+}
 
 enum StandardIO { Input, Output, Error };
 
@@ -161,19 +173,42 @@ extern "C" void test_smartcard_class()
 	delete h;
 }
 
+extern "C" void EnumAccounts()
+{
+	NtAccounts ac;
+	vector<SecurityIdentity *> users;
+
+	ac.GetUserAccounts(users);
+	wstring name;
+	for(auto i = users.begin(), e = users.end(); i != e; i++)
+	{
+		(*i)->GetName(name);
+		wprintf(L"%s\n", name.c_str());
+	}
+
+	ac.GetAll(users);
+	for(auto i = users.begin(), e = users.end(); i != e; i++)
+	{
+		if((*i)->IsGroup())
+		{
+			(*i)->GetName(name);
+			wprintf(L"▶%s\n", name.c_str());
+		}
+	}
+}
+
 extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, int nCmdShow)
 {
-	//if(IsDebuggerPresent())
-	//{
-	//	__debugbreak();
-	//}
-
 	AllocConsole();
 	AttachConsole(GetCurrentProcessId());
+
 	open_stdio(StandardIO::Input);
 	open_stdio(StandardIO::Output);
 	open_stdio(StandardIO::Error);
 
+	EnumAccounts();
+
+#if false
 	AllocateLsaHeap = [](ULONG s) { return reinterpret_cast<void*>(new unsigned char[s]); };
 	FreeLsaHeap = [](void * b) { delete[] static_cast<unsigned char*>(b); };
 
@@ -209,12 +244,19 @@ extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, i
 	}
 
 	_getwch();
+#endif
 
-	CoInitializeEx(nullptr, COINIT_DISABLE_OLE1DDE | COINIT_APARTMENTTHREADED);
-	show_credential_dialog();
-	CoUninitialize();
-
+#if false
+	if(GetAsyncKeyState(VK_CONTROL) & 0x8000)
+	{
+		CoInitializeEx(nullptr, COINIT_DISABLE_OLE1DDE | COINIT_APARTMENTTHREADED);
+		show_credential_dialog();
+		CoUninitialize();
+	}
+#endif
 	//test_smartcard_class();
+
+	_getwch();
 
 	close_stdio(StandardIO::Error);
 	close_stdio(StandardIO::Output);

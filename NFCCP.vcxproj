@@ -106,6 +106,7 @@
     <ClCompile Include="Provider.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="RunDll.cpp" />
+    <ClCompile Include="SecIdentity.cpp" />
     <ClCompile Include="SmartCardHelper.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
@@ -115,6 +116,7 @@
     <ClInclude Include="Filter.hpp" />
     <ClInclude Include="Lsa.hpp" />
     <ClInclude Include="Provider.hpp" />
+    <ClInclude Include="SecIdentity.hpp" />
     <ClInclude Include="SmartCardHelper.hpp" />
     <ClInclude Include="Util.hpp" />
   </ItemGroup>
