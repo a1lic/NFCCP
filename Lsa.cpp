@@ -153,11 +153,11 @@ UNICODE_STRING * CreateUnicodeString(wstring & s, bool nullable)
 
 	// UNICODE_STRINGを生成
 	{
-		auto wsize = s.size();
-		name->Length = (wsize > USHRT_MAX) ? USHRT_MAX : static_cast<USHORT>(wsize);
+		auto wsize = sizeof(wchar_t) * s.size();
+		name->Length = (wsize > (USHRT_MAX - 1)) ? (USHRT_MAX - 1) : static_cast<USHORT>(wsize);
 	}
 	name->MaximumLength = name->Length;
-	name->Buffer = static_cast<wchar_t*>((*AllocateLsaHeap)(sizeof(wchar_t) * name->Length));
+	name->Buffer = static_cast<wchar_t*>((*AllocateLsaHeap)(name->Length));
 
 	if(!name->Buffer)
 	{
@@ -167,7 +167,7 @@ UNICODE_STRING * CreateUnicodeString(wstring & s, bool nullable)
 	}
 
 	// UNICODE_STRINGの文字列にコピー
-	memcpy(name->Buffer, s.c_str(), sizeof(wchar_t) * name->Length);
+	memcpy(name->Buffer, s.c_str(), name->Length);
 
 	return name;
 }
