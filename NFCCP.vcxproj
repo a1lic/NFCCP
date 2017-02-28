@@ -107,6 +107,7 @@
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="RunDll.cpp" />
     <ClCompile Include="SmartCardHelper.cpp" />
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClassFactory.hpp" />
