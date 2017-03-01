@@ -94,7 +94,11 @@ NtAccounts::NtAccounts()
 	LSA_OBJECT_ATTRIBUTES oa;
 	memset(&oa, 0, sizeof(LSA_OBJECT_ATTRIBUTES));
 
-	if(LsaOpenPolicy(nullptr, &oa, POLICY_LOOKUP_NAMES, &this->lsa) != STATUS_SUCCESS)
+	// 管理者権限がない状態でLsaOpenPolicy関数を呼び出したときのハンドルを
+	// LsaClose関数に渡すと、LsaClose関数内部のHeapFree呼び出しで二重解放になる
+	// そのため、POLICY_LOOKUP_NAMESを指定しているところに
+	// 本来不要であるPOLICY_WRITEを追加して管理者権限を必要とするようにする
+	if(LsaOpenPolicy(nullptr, &oa, POLICY_LOOKUP_NAMES | POLICY_WRITE, &this->lsa) != STATUS_SUCCESS)
 	{
 		DebugPrint(L"LsaOpenPolicy failed.");
 		this->lsa = nullptr;
