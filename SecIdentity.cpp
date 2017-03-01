@@ -201,6 +201,8 @@ void NtAccounts::EnumerateSecurityIdentities()
 		auto sid = new unsigned char[sid_s];
 		RegQueryValueExW(sid_key, nullptr, nullptr, nullptr, sid, &sid_s);
 
+		RegCloseKey(sid_key);
+
 		auto sid_cls = new SecurityIdentity(sid, static_cast<unsigned short>(sid_s));
 		this->sid_list.push_back(sid_cls);
 		sid_cls->ResolveName(lsa);
