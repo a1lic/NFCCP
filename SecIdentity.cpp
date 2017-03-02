@@ -40,7 +40,7 @@ void SecurityIdentity::ResolveName(LSA_HANDLE lsa)
 	sidss[0] = this->raw_sid;
 	LSA_REFERENCED_DOMAIN_LIST * domains = nullptr;
 	LSA_TRANSLATED_NAME * names = nullptr;
-	auto lsa_result = LsaLookupSids2(lsa,LSA_LOOKUP_DISALLOW_CONNECTED_ACCOUNT_INTERNET_SID , 1, sidss, &domains, &names);
+	auto lsa_result = LsaLookupSids2(lsa, LSA_LOOKUP_DISALLOW_CONNECTED_ACCOUNT_INTERNET_SID, 1, sidss, &domains, &names);
 	if(lsa_result != STATUS_SUCCESS)
 	{
 		if(lsa_result == STATUS_NONE_MAPPED)
