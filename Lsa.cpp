@@ -5,17 +5,20 @@ using std::wstring;
 
 unsigned long package_id;
 
-PLSA_CREATE_LOGON_SESSION CreateLogonSession;
-PLSA_DELETE_LOGON_SESSION DeleteLogonSession;
-PLSA_ADD_CREDENTIAL AddCredential;
-PLSA_GET_CREDENTIALS GetCredentials;
-PLSA_DELETE_CREDENTIAL DeleteCredential;
-PLSA_ALLOCATE_LSA_HEAP AllocateLsaHeap;
-PLSA_FREE_LSA_HEAP FreeLsaHeap;
-PLSA_ALLOCATE_CLIENT_BUFFER AllocateClientBuffer;
-PLSA_FREE_CLIENT_BUFFER FreeClientBuffer;
-PLSA_COPY_TO_CLIENT_BUFFER CopyToClientBuffer;
-PLSA_COPY_FROM_CLIENT_BUFFER CopyFromClientBuffer;
+namespace Lsa
+{
+	PLSA_CREATE_LOGON_SESSION CreateLogonSession;
+	PLSA_DELETE_LOGON_SESSION DeleteLogonSession;
+	PLSA_ADD_CREDENTIAL AddCredential;
+	PLSA_GET_CREDENTIALS GetCredentials;
+	PLSA_DELETE_CREDENTIAL DeleteCredential;
+	PLSA_ALLOCATE_LSA_HEAP AllocateLsaHeap;
+	PLSA_FREE_LSA_HEAP FreeLsaHeap;
+	PLSA_ALLOCATE_CLIENT_BUFFER AllocateClientBuffer;
+	PLSA_FREE_CLIENT_BUFFER FreeClientBuffer;
+	PLSA_COPY_TO_CLIENT_BUFFER CopyToClientBuffer;
+	PLSA_COPY_FROM_CLIENT_BUFFER CopyFromClientBuffer;
+};
 
 void LoadLsaString(const LSA_STRING * l, wstring & s)
 {
@@ -56,7 +59,7 @@ LSA_STRING * CreateLsaString(const wchar_t * s, bool nullable)
 		else
 		{
 			// LSA_STRINGを返す場合は、長さ0のLSA_STRINGを返す
-			auto name = static_cast<LSA_STRING*>((*AllocateLsaHeap)(sizeof(LSA_STRING)));
+			auto name = static_cast<LSA_STRING*>((*Lsa::AllocateLsaHeap)(sizeof(LSA_STRING)));
 			if(name)
 			{
 				name->Buffer = nullptr;
@@ -76,7 +79,7 @@ LSA_STRING * CreateLsaString(const wchar_t * s, bool nullable)
 		return nullptr;
 	}
 
-	auto name = static_cast<LSA_STRING*>((*AllocateLsaHeap)(sizeof(LSA_STRING)));
+	auto name = static_cast<LSA_STRING*>((*Lsa::AllocateLsaHeap)(sizeof(LSA_STRING)));
 	if(!name)
 	{
 		return nullptr;
@@ -101,12 +104,12 @@ LSA_STRING * CreateLsaString(const wchar_t * s, bool nullable)
 	// LSA_STRINGを生成
 	name->Length = newsize;
 	name->MaximumLength = newsize;
-	name->Buffer = static_cast<char*>((*AllocateLsaHeap)(newsize));
+	name->Buffer = static_cast<char*>((*Lsa::AllocateLsaHeap)(newsize));
 
 	if(!name->Buffer)
 	{
 		// 文字列を格納するバッファーを取れなかった場合はLSA_STRINGを破棄
-		(*FreeLsaHeap)(name);
+		(*Lsa::FreeLsaHeap)(name);
 		return nullptr;
 	}
 
@@ -134,7 +137,7 @@ UNICODE_STRING * CreateUnicodeString(wstring & s, bool nullable)
 		else
 		{
 			// UNICODE_STRINGを返す場合は、長さ0のLSA_STRINGを返す
-			auto name = static_cast<UNICODE_STRING*>((*AllocateLsaHeap)(sizeof(UNICODE_STRING)));
+			auto name = static_cast<UNICODE_STRING*>((*Lsa::AllocateLsaHeap)(sizeof(UNICODE_STRING)));
 			if(name)
 			{
 				name->Buffer = nullptr;
@@ -145,7 +148,7 @@ UNICODE_STRING * CreateUnicodeString(wstring & s, bool nullable)
 		}
 	}
 
-	auto name = static_cast<UNICODE_STRING*>((*AllocateLsaHeap)(sizeof(UNICODE_STRING)));
+	auto name = static_cast<UNICODE_STRING*>((*Lsa::AllocateLsaHeap)(sizeof(UNICODE_STRING)));
 	if(!name)
 	{
 		return nullptr;
@@ -157,12 +160,12 @@ UNICODE_STRING * CreateUnicodeString(wstring & s, bool nullable)
 		name->Length = (wsize > (USHRT_MAX - 1)) ? (USHRT_MAX - 1) : static_cast<USHORT>(wsize);
 	}
 	name->MaximumLength = name->Length;
-	name->Buffer = static_cast<wchar_t*>((*AllocateLsaHeap)(name->Length));
+	name->Buffer = static_cast<wchar_t*>((*Lsa::AllocateLsaHeap)(name->Length));
 
 	if(!name->Buffer)
 	{
 		// 文字列を格納するバッファーを取れなかった場合はUNICODE_STRINGを破棄
-		(*FreeLsaHeap)(name);
+		(*Lsa::FreeLsaHeap)(name);
 		return nullptr;
 	}
 
@@ -229,17 +232,17 @@ extern "C" NTSTATUS NTAPI LsaApInitializePackage(
 	DebugPrint(L"%hs", "LsaApInitializePackage");
 
 	// LSAの関数
-	CreateLogonSession = LsaDispatchTable->CreateLogonSession;
-	DeleteLogonSession = LsaDispatchTable->DeleteLogonSession;
-	AddCredential = LsaDispatchTable->AddCredential;
-	GetCredentials = LsaDispatchTable->GetCredentials;
-	DeleteCredential = LsaDispatchTable->DeleteCredential;
-	AllocateLsaHeap = LsaDispatchTable->AllocateLsaHeap;
-	FreeLsaHeap = LsaDispatchTable->FreeLsaHeap;
-	AllocateClientBuffer = LsaDispatchTable->AllocateClientBuffer;
-	FreeClientBuffer = LsaDispatchTable->FreeClientBuffer;
-	CopyToClientBuffer = LsaDispatchTable->CopyToClientBuffer;
-	CopyFromClientBuffer = LsaDispatchTable->CopyFromClientBuffer;
+	Lsa::CreateLogonSession = LsaDispatchTable->CreateLogonSession;
+	Lsa::DeleteLogonSession = LsaDispatchTable->DeleteLogonSession;
+	Lsa::AddCredential = LsaDispatchTable->AddCredential;
+	Lsa::GetCredentials = LsaDispatchTable->GetCredentials;
+	Lsa::DeleteCredential = LsaDispatchTable->DeleteCredential;
+	Lsa::AllocateLsaHeap = LsaDispatchTable->AllocateLsaHeap;
+	Lsa::FreeLsaHeap = LsaDispatchTable->FreeLsaHeap;
+	Lsa::AllocateClientBuffer = LsaDispatchTable->AllocateClientBuffer;
+	Lsa::FreeClientBuffer = LsaDispatchTable->FreeClientBuffer;
+	Lsa::CopyToClientBuffer = LsaDispatchTable->CopyToClientBuffer;
+	Lsa::CopyFromClientBuffer = LsaDispatchTable->CopyFromClientBuffer;
 
 	package_id = AuthenticationPackageId;
 	DebugPrint(L"Authentication package ID:%u", package_id);

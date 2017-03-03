@@ -14,17 +14,20 @@ typedef long NTSTATUS, *PNTSTATUS;
 
 using std::wstring;
 
-extern PLSA_CREATE_LOGON_SESSION CreateLogonSession;
-extern PLSA_DELETE_LOGON_SESSION DeleteLogonSession;
-extern PLSA_ADD_CREDENTIAL AddCredential;
-extern PLSA_GET_CREDENTIALS GetCredentials;
-extern PLSA_DELETE_CREDENTIAL DeleteCredential;
-extern PLSA_ALLOCATE_LSA_HEAP AllocateLsaHeap;
-extern PLSA_FREE_LSA_HEAP FreeLsaHeap;
-extern PLSA_ALLOCATE_CLIENT_BUFFER AllocateClientBuffer;
-extern PLSA_FREE_CLIENT_BUFFER FreeClientBuffer;
-extern PLSA_COPY_TO_CLIENT_BUFFER CopyToClientBuffer;
-extern PLSA_COPY_FROM_CLIENT_BUFFER CopyFromClientBuffer;
+namespace Lsa
+{
+	extern PLSA_CREATE_LOGON_SESSION CreateLogonSession;
+	extern PLSA_DELETE_LOGON_SESSION DeleteLogonSession;
+	extern PLSA_ADD_CREDENTIAL AddCredential;
+	extern PLSA_GET_CREDENTIALS GetCredentials;
+	extern PLSA_DELETE_CREDENTIAL DeleteCredential;
+	extern PLSA_ALLOCATE_LSA_HEAP AllocateLsaHeap;
+	extern PLSA_FREE_LSA_HEAP FreeLsaHeap;
+	extern PLSA_ALLOCATE_CLIENT_BUFFER AllocateClientBuffer;
+	extern PLSA_FREE_CLIENT_BUFFER FreeClientBuffer;
+	extern PLSA_COPY_TO_CLIENT_BUFFER CopyToClientBuffer;
+	extern PLSA_COPY_FROM_CLIENT_BUFFER CopyFromClientBuffer;
+};
 
 extern unsigned long package_id;
 extern wstring * database;
@@ -108,32 +111,4 @@ public:
 	{
 		return CreateUnicodeString(this->Authority, true);
 	}
-};
-
-
-class LsaSession
-{
-	LocalUniqId LogonId;
-public:
-	inline __int64 GetLogonID()
-	{
-		return this->LogonId.RawId;
-	}
-	NTSTATUS CreateLogonSession();
-	NTSTATUS DeleteLogonSession();
-	NTSTATUS AddCredential(ULONG AuthenticationPackage, const LSA_STRING * PrimaryKeyValue, const LSA_STRING * Credentials);
-	NTSTATUS GetCredentials(ULONG AuthenticationPackage, ULONG * QueryContext, BOOLEAN RetriveAllCredentials, const LSA_STRING * PrimaryKeyValue, ULONG * PrimaryKeyLength, const LSA_STRING * Credentials);
-	NTSTATUS DeleteCredential(ULONG AuthenticationPackage, const LSA_STRING * PrimaryKeyValue);
-};
-
-class Lsa
-{
-	static LSA_DISPATCH_TABLE Dispatch;
-public:
-	void * AllocateLsaHeap(ULONG Length);
-	void FreeLsaHeap(void * Base);
-	void * AllocateClientBuffer(PLSA_CLIENT_REQUEST ClientRequest, ULONG LengthRequired, void ** ClientBaseAddress);
-	void FreeClientBuffer(PLSA_CLIENT_REQUEST ClientRequest, void * ClientBaseAddress);
-	NTSTATUS CopyToClientBuffer(PLSA_CLIENT_REQUEST ClientRequest, ULONG Length, void * ClientBaseAddress, void * BufferToCopy);
-	NTSTATUS CopyFromClientBuffer(PLSA_CLIENT_REQUEST CkientRequest, ULONG Length, void * BufferToCopy, void * ClientBaseAddress);
 };
