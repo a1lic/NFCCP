@@ -16,6 +16,7 @@
 #include "SecIdentity.hpp"
 
 using std::vector;
+extern wstring * module_path;
 
 #undef NTSTATUS_FROM_WIN32
 extern "C" NTSTATUS NTSTATUS_FROM_WIN32(long x)
@@ -173,6 +174,121 @@ extern "C" void test_smartcard_class()
 	delete h;
 }
 
+extern "C" void EnumAuthenticationPackages()
+{
+	HKEY lsa;
+	LRESULT reg_result;
+
+	reg_result = RegOpenKeyExW(HKEY_LOCAL_MACHINE, LR"(SYSTEM\CurrentControlSet\Control\Lsa)", 0, KEY_QUERY_VALUE, &lsa);
+	if(reg_result != ERROR_SUCCESS)
+	{
+		wprintf(L"LSAのレジストリキーを開けません 0x%08X\n", static_cast<unsigned int>(reg_result));
+		return;
+	}
+
+	DWORD size = 0;
+	DWORD type;
+	RegQueryValueExW(lsa, L"Security Packages", nullptr, &type, nullptr, &size);
+	if(!((type == REG_SZ) || (type == REG_EXPAND_SZ) || (type == REG_MULTI_SZ)))
+	{
+		wprintf(L"文字列型ではありません。");
+		RegCloseKey(lsa);
+		return;
+	}
+
+	wprintf(L"Authentication Packagesのサイズ %u\n", size);
+	auto reg_value = new wchar_t[size / sizeof(wchar_t)];
+	RegQueryValueExW(lsa, L"Security Packages", nullptr, nullptr, reinterpret_cast<BYTE*>(reg_value), &size);
+
+	auto packages = new vector<wstring>;
+
+	if(type == REG_SZ)
+	{
+		packages->push_back(wstring(reg_value));
+	}
+	else if(type == REG_EXPAND_SZ)
+	{
+		auto expand_size = ExpandEnvironmentStringsW(reg_value, nullptr, 0);
+		auto expand_value = new wchar_t[expand_size];
+		ExpandEnvironmentStringsW(reg_value, expand_value, expand_size);
+		packages->push_back(wstring(expand_value));
+		delete[] expand_value;
+	}
+	else if(type == REG_MULTI_SZ)
+	{
+		for(auto p = reg_value; *p; p += (1 + wcslen(p)))
+		{
+			packages->push_back(wstring(p));
+		}
+	}
+	delete[] reg_value;
+	RegCloseKey(lsa);
+
+	wprintf_s(L"パッケージの数 %u\n", packages->size());
+	auto c = 0u;
+	LSA_HANDLE lsa_h;
+	LSA_OPERATIONAL_MODE om;
+	bool trusted_lsa;
+	auto process = CreateLsaString(*module_path);
+	if(LsaRegisterLogonProcess(process, &lsa_h, &om) != STATUS_SUCCESS)
+	{
+		trusted_lsa = false;
+
+		if(LsaConnectUntrusted(&lsa_h) != STATUS_SUCCESS)
+		{
+			lsa_h = nullptr;
+		}
+	}
+	else
+	{
+		wprintf_s(L"Trusted LSA mode. %u\n", om);
+		trusted_lsa = true;
+	}
+	(*Lsa::FreeLsaHeap)(process);
+
+	for(auto i = packages->begin(), e = packages->end(); i != e; i++)
+	{
+		ULONG pkgid;
+		NTSTATUS lsa_result;
+		if(lsa_h)
+		{
+			auto pkgname = CreateLsaString(*i);
+			lsa_result = LsaLookupAuthenticationPackage(lsa_h, pkgname, &pkgid);
+			if(lsa_result != STATUS_SUCCESS)
+			{
+				pkgid = 0xFFFFFFFEul;
+			}
+			(*Lsa::FreeLsaHeap)(pkgname);
+		}
+		else
+		{
+			lsa_result = STATUS_NOT_SUPPORTED;
+			pkgid = 0xFFFFFFFFul;
+		}
+		if(lsa_result < 0)
+		{
+			wprintf(L"%03u:%s(ERR:0x%08X)\n", c++, i->c_str(), lsa_result);
+		}
+		else
+		{
+			wprintf(L"%03u:%s(%i)\n", c++, i->c_str(), static_cast<int>(pkgid));
+		}
+	}
+	if(lsa_h)
+	{
+		if(trusted_lsa)
+		{
+			LsaDeregisterLogonProcess(lsa_h);
+		}
+		else
+		{
+			LsaClose(lsa_h);
+		}
+	}
+
+	delete packages;
+}
+
 extern "C" void EnumAccounts()
 {
 	NtAccounts ac;
@@ -206,12 +322,13 @@ extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, i
 	open_stdio(StandardIO::Output);
 	open_stdio(StandardIO::Error);
 
+	Lsa::AllocateLsaHeap = [](ULONG s) { return reinterpret_cast<void*>(new unsigned char[s]); };
+	Lsa::FreeLsaHeap = [](void * b) { delete[] static_cast<unsigned char*>(b); };
+
+	EnumAuthenticationPackages();
 	EnumAccounts();
 
 #if false
-	AllocateLsaHeap = [](ULONG s) { return reinterpret_cast<void*>(new unsigned char[s]); };
-	FreeLsaHeap = [](void * b) { delete[] static_cast<unsigned char*>(b); };
-
 	{
 		auto lsa_str = CreateLsaString(L"LSA String Test");
 		wprintf_s(L"LSA_STRING::Buffer=%hs\nLSA_STRING::Length=%u\nLSA_STRING::MaxLen=%u\n", lsa_str->Buffer, lsa_str->Length, lsa_str->MaximumLength);
