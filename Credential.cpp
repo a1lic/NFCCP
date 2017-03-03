@@ -213,6 +213,20 @@ HRESULT CCredentialProviderCredential::GetSerialization(CREDENTIAL_PROVIDER_GET_
 		return S_OK;
 	}
 
+	/*
+	 * カードのシリアル番号で認証を行うには、こちらで作成した認証パッケージを呼び出す必要があるので
+	 * そのパッケージ名をLsaLookupAuthenticationPackage関数に渡してパッケージIDを調べ
+	 * これをLsaLogonUser関数に渡す必要がある
+	 * そこで、pcpcs->ulAuthenticationPackageには、LsaLogonUser関数に渡されるパッケージIDを指定する
+	 * あとはrgbSerializationにシリアル番号を格納し、cbSerializationにシリアル番号のサイズを格納
+	 * clsidCredentialProviderはとりあえずClassFactoryのCLSID
+	 *
+	 * 以上が終わったら
+	 * *pcpgsr = CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE::CPGSR_RETURN_CREDENTIAL_FINISHED;
+	 * これでGetSerializationメソッドから戻れば、LsaLogonUser関数に渡っていく
+	 */
+
+#if false
 	NTSTATUS st;
 
 	HANDLE lsa;
@@ -248,6 +262,7 @@ HRESULT CCredentialProviderCredential::GetSerialization(CREDENTIAL_PROVIDER_GET_
 
 	DebugPrint(L"Serialization done.");
 	*pcpgsr = CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE::CPGSR_RETURN_CREDENTIAL_FINISHED;
+#endif
 
 	return S_OK;
 }
