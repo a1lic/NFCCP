@@ -174,6 +174,8 @@ extern "C" void test_smartcard_class()
 	delete h;
 }
 
+#define PACKAGE_KEY L"Security Packages"
+
 extern "C" void EnumAuthenticationPackages()
 {
 	HKEY lsa;
@@ -187,8 +189,8 @@ extern "C" void EnumAuthenticationPackages()
 	}
 
 	DWORD size = 0;
-	DWORD type;
-	RegQueryValueExW(lsa, L"Security Packages", nullptr, &type, nullptr, &size);
+	DWORD type = REG_NONE;
+	RegQueryValueExW(lsa, PACKAGE_KEY, nullptr, &type, nullptr, &size);
 	if(!((type == REG_SZ) || (type == REG_EXPAND_SZ) || (type == REG_MULTI_SZ)))
 	{
 		wprintf(L"文字列型ではありません。");
@@ -196,9 +198,8 @@ extern "C" void EnumAuthenticationPackages()
 		return;
 	}
 
-	wprintf(L"Authentication Packagesのサイズ %u\n", size);
 	auto reg_value = new wchar_t[size / sizeof(wchar_t)];
-	RegQueryValueExW(lsa, L"Security Packages", nullptr, nullptr, reinterpret_cast<BYTE*>(reg_value), &size);
+	RegQueryValueExW(lsa, PACKAGE_KEY, nullptr, nullptr, reinterpret_cast<BYTE*>(reg_value), &size);
 
 	auto packages = new vector<wstring>;
 
