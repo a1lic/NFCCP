@@ -229,8 +229,33 @@ extern "C" void EnumAuthenticationPackages()
 	auto c = 0u;
 	LSA_HANDLE lsa_h;
 	LSA_OPERATIONAL_MODE om;
+	LSA_STRING * process;
 	bool trusted_lsa;
-	auto process = CreateLsaString(*module_path);
+	{
+		auto file_name = wcsrchr(module_path->c_str(), L'\\');
+		if(file_name && (wcslen(file_name) > 0))
+		{
+			// ファイル名の部分を切り出し
+
+			// c_str()で返るポインターはconstなので複製
+			auto file_name_dup = _wcsdup(file_name);
+			_wcslwr(file_name_dup);
+
+			if(auto ext = wcsrchr(file_name_dup, L'..'))
+			{
+				// 拡張子を切り落とす
+				*ext = L'\0';
+			}
+
+			process = CreateLsaString(file_name_dup);
+
+			free(file_name_dup);
+		}
+		else
+		{
+			process = CreateLsaString(L"nfccp");
+		}
+	}
 	if(LsaRegisterLogonProcess(process, &lsa_h, &om) != STATUS_SUCCESS)
 	{
 		trusted_lsa = false;
