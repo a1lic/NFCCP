@@ -191,7 +191,7 @@ ustrings::~ustrings()
 void ustrings::push_back(const wchar_t * s)
 {
 	auto ss = new ustring(s);
-	vector::push_back(*ss);
+	vector::push_back(ss->to_share_ptr());
 }
 
 /*void ustrings::clear()

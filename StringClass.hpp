@@ -37,7 +37,8 @@ public:
 	LSA_STRING * to_lsa_string();
 	inline operator LSA_STRING *() { return this->to_lsa_string(); }
 
-	inline operator shared_ptr<ustring>() { return shared_ptr<ustring>(this); }
+	inline shared_ptr<ustring> to_share_ptr() { return shared_ptr<ustring>(this); }
+	inline operator shared_ptr<ustring>() { return this->to_share_ptr(); }
 
 	static void * default_alloc(size_t);
 	static void default_free(void *);
