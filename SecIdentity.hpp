@@ -42,3 +42,9 @@ public:
 private:
 	void EnumerateSecurityIdentities();
 };
+
+#if defined(SECIDENTITY_CPP)
+template class vector<SecurityIdentity *>;
+#else
+extern template class vector<SecurityIdentity *>;
+#endif

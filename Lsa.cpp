@@ -46,133 +46,14 @@ void LoadLsaString(const LSA_STRING * l, wstring & s)
 	delete[] wstr;
 }
 
-LSA_STRING * CreateLsaString(const wchar_t * s, bool nullable)
+void * LsaAlloc(size_t s)
 {
-	if(!s || (wcslen(s) == 0))
-	{
-		// 文字列が指定されていなかったか、長さ0だった場合…
-		if(nullable)
-		{
-			// LSA_STRINGを生成しない場合はそのまま終了
-			return nullptr;
-		}
-		else
-		{
-			// LSA_STRINGを返す場合は、長さ0のLSA_STRINGを返す
-			auto name = static_cast<LSA_STRING*>((*Lsa::AllocateLsaHeap)(sizeof(LSA_STRING)));
-			if(name)
-			{
-				name->Buffer = nullptr;
-				name->Length = 0;
-				name->MaximumLength = 0;
-			}
-			return name;
-		}
-	}
-
-	auto wsize = static_cast<int>(wcsnlen(s, INT_MAX));
-	// UTF-7に変換した際のサイズをチェック
-	auto newsize = WideCharToMultiByte(CP_UTF7, 0, s, wsize, nullptr, 0, nullptr, nullptr);
-	if(nullable && (newsize <= 0))
-	{
-		// 変換結果が空文字列でLSA_STRINGを生成しない場合はそのまま終了
-		return nullptr;
-	}
-
-	auto name = static_cast<LSA_STRING*>((*Lsa::AllocateLsaHeap)(sizeof(LSA_STRING)));
-	if(!name)
-	{
-		return nullptr;
-	}
-
-	if(newsize <= 0)
-	{
-		// 変換結果が空文字列になる場合、長さ0としてLSA_STRINGを返す
-		name->Length = 0;
-		name->MaximumLength = 0;
-		name->Buffer = nullptr;
-
-		return name;
-	}
-
-	if(newsize > USHRT_MAX)
-	{
-		// LSA_STRINGは65535文字までなので、超えていた場合は切り捨てる
-		newsize = USHRT_MAX;
-	}
-
-	// LSA_STRINGを生成
-	name->Length = newsize;
-	name->MaximumLength = newsize;
-	name->Buffer = static_cast<char*>((*Lsa::AllocateLsaHeap)(newsize));
-
-	if(!name->Buffer)
-	{
-		// 文字列を格納するバッファーを取れなかった場合はLSA_STRINGを破棄
-		(*Lsa::FreeLsaHeap)(name);
-		return nullptr;
-	}
-
-	// 変換実行
-	WideCharToMultiByte(CP_UTF7, 0, s, wsize, name->Buffer, newsize, nullptr, nullptr);
-
-	return name;
+	return (*Lsa::AllocateLsaHeap)(static_cast<ULONG>(s));
 }
 
-LSA_STRING * CreateLsaString(wstring & s, bool nullable)
+void LsaFree(void * p)
 {
-	return CreateLsaString(s.empty() ? nullptr : s.c_str(), nullable);
-}
-
-UNICODE_STRING * CreateUnicodeString(wstring & s, bool nullable)
-{
-	if(s.empty())
-	{
-		// 文字列無しだった場合…
-		if(nullable)
-		{
-			// UNICODE_STRINGを生成しない場合はそのまま終了
-			return nullptr;
-		}
-		else
-		{
-			// UNICODE_STRINGを返す場合は、長さ0のLSA_STRINGを返す
-			auto name = static_cast<UNICODE_STRING*>((*Lsa::AllocateLsaHeap)(sizeof(UNICODE_STRING)));
-			if(name)
-			{
-				name->Buffer = nullptr;
-				name->Length = 0;
-				name->MaximumLength = 0;
-			}
-			return name;
-		}
-	}
-
-	auto name = static_cast<UNICODE_STRING*>((*Lsa::AllocateLsaHeap)(sizeof(UNICODE_STRING)));
-	if(!name)
-	{
-		return nullptr;
-	}
-
-	// UNICODE_STRINGを生成
-	{
-		auto wsize = sizeof(wchar_t) * s.size();
-		name->Length = (wsize > (USHRT_MAX - 1)) ? (USHRT_MAX - 1) : static_cast<USHORT>(wsize);
-	}
-	name->MaximumLength = name->Length;
-	name->Buffer = static_cast<wchar_t*>((*Lsa::AllocateLsaHeap)(name->Length));
-
-	if(!name->Buffer)
-	{
-		// 文字列を格納するバッファーを取れなかった場合はUNICODE_STRINGを破棄
-		(*Lsa::FreeLsaHeap)(name);
-		return nullptr;
-	}
-
-	// UNICODE_STRINGの文字列にコピー
-	memcpy(name->Buffer, s.c_str(), name->Length);
-
-	return name;
+	(*Lsa::FreeLsaHeap)(p);
 }
 
 extern "C" NTSTATUS NTAPI LsaApCallPackage(
@@ -254,12 +135,9 @@ extern "C" NTSTATUS NTAPI LsaApInitializePackage(
 	DebugPrint(L"Database:%s", database->c_str());
 	DebugPrint(L"Confidentiality:%s", confidentiality->c_str());
 
-	auto package_name = CreateLsaString(L"nfcidauth");
-	if(!package_name)
-	{
-		return STATUS_INSUFFICIENT_RESOURCES;
-	}
-	*AuthenticationPackageName = package_name;
+	auto package_name = ustring(L"nfcidauth");
+	package_name.set_allocater(LsaAlloc, LsaFree);
+	*AuthenticationPackageName = package_name.to_lsa_string();
 
 	return STATUS_NOT_IMPLEMENTED;
 }

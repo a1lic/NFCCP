@@ -1,4 +1,5 @@
-﻿#include "SmartCardHelper.hpp"
+﻿#define SMARTCARDHELPER_CPP
+#include "SmartCardHelper.hpp"
 #include <process.h>
 #include <minmax.h>
 #include "Util.hpp"

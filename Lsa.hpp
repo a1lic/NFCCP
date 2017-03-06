@@ -11,6 +11,7 @@ typedef long NTSTATUS, *PNTSTATUS;
 #include <sspi.h>
 #include <NTSecPKG.h>
 #include <string>
+#include "StringClass.hpp"
 
 using std::wstring;
 
@@ -45,9 +46,6 @@ enum Dispatch : unsigned char
 #endif
 
 extern void LoadLsaString(const LSA_STRING *, wstring &);
-extern LSA_STRING * CreateLsaString(const wchar_t *, bool = false);
-extern LSA_STRING * CreateLsaString(wstring &, bool = false);
-extern UNICODE_STRING * CreateUnicodeString(wstring &, bool = false);
 
 union LocalUniqId
 {
@@ -66,8 +64,8 @@ class LsaLogon
 	NTSTATUS Status;
 	LSA_TOKEN_INFORMATION_TYPE TokenType;
 	void * TokenBuffer;
-	wstring AccountName;
-	wstring Authority;
+	ustring AccountName;
+	ustring Authority;
 public:
 	inline void SetRequest(PLSA_CLIENT_REQUEST v)
 	{
@@ -105,10 +103,10 @@ public:
 	}
 	inline UNICODE_STRING * GetAccountName()
 	{
-		return CreateUnicodeString(this->AccountName);
+		return this->AccountName;
 	}
 	inline UNICODE_STRING * GetAuthority()
 	{
-		return CreateUnicodeString(this->Authority, true);
+		return this->Authority;
 	}
 };

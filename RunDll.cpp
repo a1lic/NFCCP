@@ -6,6 +6,7 @@
 #include <winscard.h>
 #include <string>
 #include <vector>
+#include <memory>
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
@@ -14,14 +15,26 @@
 #include "SmartCardHelper.hpp"
 #include "Lsa.hpp"
 #include "SecIdentity.hpp"
+#include "StringClass.hpp"
 
 using std::vector;
+using std::unique_ptr;
 extern wstring * module_path;
 
 #undef NTSTATUS_FROM_WIN32
 extern "C" NTSTATUS NTSTATUS_FROM_WIN32(long x)
 {
 	return x <= 0 ? (NTSTATUS)x : (NTSTATUS)(((x) & 0x0000FFFF) | (FACILITY_NTWIN32 << 16) | ERROR_SEVERITY_ERROR);
+}
+
+extern "C" void * allocator(size_t s)
+{
+	return static_cast<void *>(new unsigned char[s]);
+}
+
+extern "C" void releaser(void * s)
+{
+	delete[] reinterpret_cast<unsigned char *>(s);
 }
 
 enum StandardIO { Input, Output, Error };
@@ -201,31 +214,32 @@ extern "C" void EnumAuthenticationPackages()
 	auto reg_value = new wchar_t[size / sizeof(wchar_t)];
 	RegQueryValueExW(lsa, PACKAGE_KEY, nullptr, nullptr, reinterpret_cast<BYTE*>(reg_value), &size);
 
-	auto packages = new vector<wstring>;
+	auto packages = new ustrings;
+	packages->reserve(32);
 
 	if(type == REG_SZ)
 	{
-		packages->push_back(wstring(reg_value));
+		packages->push_back(reg_value);
 	}
 	else if(type == REG_EXPAND_SZ)
 	{
 		auto expand_size = ExpandEnvironmentStringsW(reg_value, nullptr, 0);
 		auto expand_value = new wchar_t[expand_size];
 		ExpandEnvironmentStringsW(reg_value, expand_value, expand_size);
-		packages->push_back(wstring(expand_value));
+		packages->push_back(expand_value);
 		delete[] expand_value;
 	}
 	else if(type == REG_MULTI_SZ)
 	{
 		for(auto p = reg_value; *p; p += (1 + wcslen(p)))
 		{
-			packages->push_back(wstring(p));
+			packages->push_back(p);
 		}
 	}
 	delete[] reg_value;
 	RegCloseKey(lsa);
 
-	wprintf_s(L"パッケージの数 %u\n", packages->size());
+	wprintf_s(L"パッケージの数 %Iu\n", packages->size());
 	auto c = 0u;
 	LSA_HANDLE lsa_h;
 	LSA_OPERATIONAL_MODE om;
@@ -233,27 +247,32 @@ extern "C" void EnumAuthenticationPackages()
 	bool trusted_lsa;
 	{
 		auto file_name = wcsrchr(module_path->c_str(), L'\\');
-		if(file_name && (wcslen(file_name) > 0))
+		if(file_name && (wcslen(1 + file_name) > 0))
 		{
 			// ファイル名の部分を切り出し
 
 			// c_str()で返るポインターはconstなので複製
-			auto file_name_dup = _wcsdup(file_name);
+			auto file_name_dup = _wcsdup(1 + file_name);
+#pragma warning(push)
+#pragma warning(disable:4996)
 			_wcslwr(file_name_dup);
+#pragma warning(pop)
 
-			if(auto ext = wcsrchr(file_name_dup, L'..'))
+			if(auto ext = wcsrchr(file_name_dup, L'.'))
 			{
 				// 拡張子を切り落とす
 				*ext = L'\0';
 			}
 
-			process = CreateLsaString(file_name_dup);
+			auto file_name_lsa = ustring(file_name_dup);
+			process = file_name_lsa.to_lsa_string();
 
 			free(file_name_dup);
 		}
 		else
 		{
-			process = CreateLsaString(L"nfccp");
+			auto default_name_lsa = ustring(L"nfccp");
+			process = default_name_lsa.to_lsa_string();
 		}
 	}
 	if(LsaRegisterLogonProcess(process, &lsa_h, &om) != STATUS_SUCCESS)
@@ -270,7 +289,7 @@ extern "C" void EnumAuthenticationPackages()
 		wprintf_s(L"Trusted LSA mode. %u\n", om);
 		trusted_lsa = true;
 	}
-	(*Lsa::FreeLsaHeap)(process);
+	ustring::default_free(process);
 
 	for(auto i = packages->begin(), e = packages->end(); i != e; i++)
 	{
@@ -278,13 +297,13 @@ extern "C" void EnumAuthenticationPackages()
 		NTSTATUS lsa_result;
 		if(lsa_h)
 		{
-			auto pkgname = CreateLsaString(*i);
+			auto pkgname = (*i)->to_lsa_string();
 			lsa_result = LsaLookupAuthenticationPackage(lsa_h, pkgname, &pkgid);
 			if(lsa_result != STATUS_SUCCESS)
 			{
 				pkgid = 0xFFFFFFFEul;
 			}
-			(*Lsa::FreeLsaHeap)(pkgname);
+			(*releaser)(pkgname);
 		}
 		else
 		{
@@ -293,11 +312,11 @@ extern "C" void EnumAuthenticationPackages()
 		}
 		if(lsa_result < 0)
 		{
-			wprintf(L"%03u:%s(ERR:0x%08X)\n", c++, i->c_str(), lsa_result);
+			wprintf(L"%03u:%s(ERR:0x%08X)\n", c++, (*i)->c_str(), lsa_result);
 		}
 		else
 		{
-			wprintf(L"%03u:%s(%i)\n", c++, i->c_str(), static_cast<int>(pkgid));
+			wprintf(L"%03u:%s(%i)\n", c++, (*i)->c_str(), static_cast<int>(pkgid));
 		}
 	}
 	if(lsa_h)
@@ -312,6 +331,7 @@ extern "C" void EnumAuthenticationPackages()
 		}
 	}
 
+	//packages->clear();
 	delete packages;
 }
 
@@ -379,7 +399,7 @@ extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, i
 
 	{
 		wstring w(L"UNICODE_STRINGテスト");
-		auto ustr = CreateUnicodeString(w);
+		auto ustr = Createustring(w);
 
 		wprintf_s(L"UNICODE_STRING::Buffer=%s\nUNICODE_STRING::Length=%u\nUNICODE_STRING::MaxLen=%u\n", ustr->Buffer, ustr->Length, ustr->MaximumLength);
 
