@@ -13,6 +13,12 @@
 using std::wstring;
 using std::vector;
 
+#if defined(SECIDENTITY_CPP)
+template class vector<class SecurityIdentity *>;
+#else
+extern template class vector<class SecurityIdentity *>;
+#endif
+
 class SecurityIdentity
 {
 	unsigned char * raw_sid;
@@ -42,9 +48,3 @@ public:
 private:
 	void EnumerateSecurityIdentities();
 };
-
-#if defined(SECIDENTITY_CPP)
-template class vector<SecurityIdentity *>;
-#else
-extern template class vector<SecurityIdentity *>;
-#endif

@@ -8,6 +8,14 @@
 
 using std::vector;
 
+#if defined(SMARTCARDHELPER_CPP)
+template class vector<unsigned char>;
+template class vector<class SmartCardReader *>;
+#else
+extern template class vector<unsigned char>;
+extern template class vector<class SmartCardReader *>;
+#endif
+
 enum SmartCardProtocol : unsigned char
 {
 	Default, Optimal, Character, Block
@@ -90,11 +98,3 @@ public:
 private:
 	void EnumerateReaders();
 };
-
-#if defined(SMARTCARDHELPER_CPP)
-template class vector<unsigned char>;
-template class vector<SmartCardReader *>;
-#else
-extern template class vector<unsigned char>;
-extern template class vector<SmartCardReader *>;
-#endif

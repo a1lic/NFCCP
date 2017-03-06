@@ -14,6 +14,14 @@ using std::shared_ptr;
 typedef void * (* ustring_alloc)(size_t);
 typedef void   (* ustring_free )(void *);
 
+#if defined(STRINGCLASS_CPP)
+template class shared_ptr<class ustring>;
+template class vector<shared_ptr<class ustring>>;
+#else
+extern template class shared_ptr<class ustring>;
+extern template class vector<shared_ptr<class ustring>>;
+#endif
+
 class ustring : public wstring
 {
 private:
@@ -48,17 +56,7 @@ class ustrings : public vector<shared_ptr<ustring>>
 {
 public:
 	ustrings();
-	ustrings(const ustrings &) = default;
-	ustrings & operator =(const ustrings &) = default;
 	virtual ~ustrings();
 
 	void push_back(const wchar_t *);
 };
-
-#if defined(STRINGCLASS_CPP)
-template class shared_ptr<ustring>;
-template class vector<shared_ptr<ustring>>;
-#else
-extern template class shared_ptr<ustring>;
-extern template class vector<shared_ptr<ustring>>;
-#endif
