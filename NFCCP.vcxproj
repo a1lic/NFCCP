@@ -108,6 +108,7 @@
     <ClCompile Include="RunDll.cpp" />
     <ClCompile Include="SecIdentity.cpp" />
     <ClCompile Include="SmartCardHelper.cpp" />
+    <ClCompile Include="StringClass.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +119,7 @@
     <ClInclude Include="Provider.hpp" />
     <ClInclude Include="SecIdentity.hpp" />
     <ClInclude Include="SmartCardHelper.hpp" />
+    <ClInclude Include="StringClass.hpp" />
     <ClInclude Include="Util.hpp" />
   </ItemGroup>
   <ItemGroup>
