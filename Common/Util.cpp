@@ -1,7 +1,69 @@
-﻿#include <string>
-#include <Windows.h>
+﻿#include "Util.hpp"
 
-using std::wstring;
+extern "C" void close_stdio(StandardIO type)
+{
+	switch(type)
+	{
+	case StandardIO::Input:
+		fclose(stdin);
+		break;
+	case StandardIO::Output:
+		fclose(stdout);
+		break;
+	case StandardIO::Error:
+		fclose(stderr);
+		break;
+	}
+}
+
+extern "C" void open_stdio(StandardIO type)
+{
+	FILE * f = nullptr;
+	switch(type)
+	{
+	case StandardIO::Input:
+		_wfreopen_s(&f, L"CONIN$", L"r+,ccs=UTF-16LE", stdin);
+		//SetStdHandle(STD_INPUT_HANDLE, reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(stdin))));
+		fflush(stdin);
+		break;
+	case StandardIO::Output:
+		_wfreopen_s(&f, L"CONOUT$", L"w+,ccs=UTF-16LE", stdout);
+		//SetStdHandle(STD_OUTPUT_HANDLE, reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(stdout))));
+		//{
+		//	int fh = _fileno(stdout);
+		//	std::wstring check(L"CHECK\n標準出力チェック\n");
+		//	for(auto i = check.begin(), e = check.end(); i < e; i++)
+		//	{
+		//		auto c = *i;
+		//		_write(fh, &c, sizeof(c));
+		//	}
+		//}
+		fflush(stdout);
+		break;
+	case StandardIO::Error:
+		_wfreopen_s(&f, L"CONOUT$", L"w+,ccs=UTF-16LE", stderr);
+		//SetStdHandle(STD_ERROR_HANDLE, reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(stderr))));
+		//{
+		//	std::wstring check(L"ERR CHECK\n標準エラーチェック\n");
+		//	for(auto i = check.begin(), e = check.end(); i < e; i++)
+		//	{
+		//		_fputwc_nolock(*i, stderr);
+		//	}
+		//}
+		fflush(stderr);
+		break;
+	}
+}
+
+extern "C" void * allocator(size_t s)
+{
+	return static_cast<void *>(new unsigned char[s]);
+}
+
+extern "C" void releaser(void * s)
+{
+	delete[] reinterpret_cast<unsigned char *>(s);
+}
 
 void BinaryToString(const void * buf, size_t buf_size, wstring & str)
 {

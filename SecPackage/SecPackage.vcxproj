@@ -67,6 +67,7 @@
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
       <BaseAddress>0x700700900000</BaseAddress>
       <AdditionalOptions>/PDBALTPATH:$(TargetName).pdb %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>ktmw32.lib;shlwapi.lib;secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -93,6 +94,7 @@
       <SetChecksum>true</SetChecksum>
       <BaseAddress>0x700700900000</BaseAddress>
       <AdditionalOptions>/PDBALTPATH:$(TargetName).pdb %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>ktmw32.lib;shlwapi.lib;secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -103,11 +105,14 @@
     <ClCompile Include="..\Common\Util.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Lsa.cpp" />
+    <ClCompile Include="RunDll.cpp" />
+    <ClCompile Include="SecIdentity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\StringClass.hpp" />
     <ClInclude Include="..\Common\Util.hpp" />
     <ClInclude Include="Lsa.hpp" />
+    <ClInclude Include="SecIdentity.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />

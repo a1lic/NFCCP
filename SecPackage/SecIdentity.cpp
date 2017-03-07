@@ -1,6 +1,6 @@
 ﻿#define SECIDENTITY_CPP
 #include "SecIdentity.hpp"
-#include "Util.hpp"
+#include "../Common/Util.hpp"
 
 SecurityIdentity::SecurityIdentity(const SID * sid)
 {

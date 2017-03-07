@@ -3,8 +3,8 @@ EXPORTS
 	;DllRegisterServer   PRIVATE
 	;DllUnregisterServer PRIVATE
 	; rundll32
-	;TestA PRIVATE
-	;TestW PRIVATE
+	TestA PRIVATE
+	TestW PRIVATE
 	; LSA
 	LsaApCallPackage            PRIVATE
 	LsaApCallPackagePassthrough PRIVATE

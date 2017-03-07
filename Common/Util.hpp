@@ -6,6 +6,14 @@ using std::wstring;
 
 extern ULONG global_instances;
 
+enum StandardIO { Input, Output, Error };
+
+extern "C" void close_stdio(StandardIO);
+extern "C" void open_stdio(StandardIO);
+
+extern "C" void * allocator(size_t);
+extern "C" void releaser(void *);
+
 extern "C" int MessageBoxFmt(HWND, const wchar_t *, UINT, const wchar_t *, ...);
 extern "C" void guid_to_string(const GUID &, wchar_t *);
 

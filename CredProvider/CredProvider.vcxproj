@@ -64,7 +64,7 @@
       <Version>1.0</Version>
       <EnableUAC>false</EnableUAC>
       <AdditionalOptions>/PDBALTPATH:$(TargetName).pdb %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>winscard.lib;ktmw32.lib;shlwapi.lib;credui.lib;secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winscard.lib;ktmw32.lib;shlwapi.lib;credui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
       <BaseAddress>0x700700700000</BaseAddress>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
@@ -91,7 +91,7 @@
       <EnableUAC>false</EnableUAC>
       <SetChecksum>true</SetChecksum>
       <AdditionalOptions>/PDBALTPATH:$(TargetName).pdb %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>winscard.lib;ktmw32.lib;shlwapi.lib;credui.lib;secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winscard.lib;ktmw32.lib;shlwapi.lib;credui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
       <BaseAddress>0x700700700000</BaseAddress>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
