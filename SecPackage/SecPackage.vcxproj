@@ -14,6 +14,7 @@
     <ProjectGuid>{1D9145A7-69AE-4D91-BEEF-BF5952E38A70}</ProjectGuid>
     <RootNamespace>SecPackage</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <ProjectName>SecurityPackage</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
