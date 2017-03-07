@@ -1,6 +1,6 @@
 ﻿#include "Filter.hpp"
 #include <Shlwapi.h>
-#include "Util.hpp"
+#include "../Common/Util.hpp"
 #include <stdio.h>
 
 const GUID CCredentialProviderFilter::blacklist[4] = {

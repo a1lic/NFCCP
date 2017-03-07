@@ -1,10 +1,12 @@
 ﻿#include "Lsa.hpp"
-#include "Util.hpp"
+#include "../Common/Util.hpp"
 #include <intrin.h>
 
 using std::wstring;
 
 unsigned long package_id;
+wstring * database;
+wstring * confidentiality;
 
 namespace Lsa
 {

@@ -11,7 +11,7 @@ typedef long NTSTATUS, *PNTSTATUS;
 #include <sspi.h>
 #include <NTSecPKG.h>
 #include <string>
-#include "StringClass.hpp"
+#include "../Common/StringClass.hpp"
 
 using std::wstring;
 

@@ -4,7 +4,7 @@
 #include <NTSecAPI.h>
 #include <sspi.h>
 #include <process.h>
-#include "Util.hpp"
+#include "../Common/Util.hpp"
 #include "Provider.hpp"
 #include "ClassFactory.hpp"
 

@@ -39,16 +39,10 @@
     <ClCompile Include="Provider.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Lsa.cpp">
+    <ClCompile Include="..\Common\StringClass.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Util.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="SecIdentity.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="StringClass.cpp">
+    <ClCompile Include="..\Common\Util.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,16 +62,10 @@
     <ClInclude Include="SmartCardHelper.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Util.hpp">
+    <ClInclude Include="..\Common\StringClass.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Lsa.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="SecIdentity.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="StringClass.hpp">
+    <ClInclude Include="..\Common\Util.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
@@ -90,6 +78,5 @@
     <None Include="Exports.def">
       <Filter>ソース ファイル</Filter>
     </None>
-    <None Include="README.md" />
   </ItemGroup>
 </Project>

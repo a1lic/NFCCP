@@ -1,7 +1,7 @@
 ﻿#include "ClassFactory.hpp"
 #include <Credentialprovider.h>
 #include <Shlwapi.h>
-#include "Util.hpp"
+#include "../Common/Util.hpp"
 #include "Provider.hpp"
 #include "Filter.hpp"
 

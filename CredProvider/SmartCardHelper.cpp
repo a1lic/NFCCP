@@ -2,7 +2,7 @@
 #include "SmartCardHelper.hpp"
 #include <process.h>
 #include <minmax.h>
-#include "Util.hpp"
+#include "../Common/Util.hpp"
 
 SmartCard::SmartCard(SCARDCONTEXT context, SCARDHANDLE handle)
 {

@@ -3,7 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NFCCP", "NFCCP.vcxproj", "{911B7C3A-2402-4A79-A4CA-0D6595CB8419}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SecPackage", "SecPackage\SecPackage.vcxproj", "{1D9145A7-69AE-4D91-BEEF-BF5952E38A70}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NFCCP", "CredProvider\CredProvider.vcxproj", "{911B7C3A-2402-4A79-A4CA-0D6595CB8419}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1FAE7337-97E2-4B07-98AC-CEA0289D66F1}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,6 +20,10 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1D9145A7-69AE-4D91-BEEF-BF5952E38A70}.Debug|x64.ActiveCfg = Debug|x64
+		{1D9145A7-69AE-4D91-BEEF-BF5952E38A70}.Debug|x64.Build.0 = Debug|x64
+		{1D9145A7-69AE-4D91-BEEF-BF5952E38A70}.Release|x64.ActiveCfg = Release|x64
+		{1D9145A7-69AE-4D91-BEEF-BF5952E38A70}.Release|x64.Build.0 = Release|x64
 		{911B7C3A-2402-4A79-A4CA-0D6595CB8419}.Debug|x64.ActiveCfg = Debug|x64
 		{911B7C3A-2402-4A79-A4CA-0D6595CB8419}.Debug|x64.Build.0 = Debug|x64
 		{911B7C3A-2402-4A79-A4CA-0D6595CB8419}.Release|x64.ActiveCfg = Release|x64

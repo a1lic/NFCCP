@@ -1,0 +1,9 @@
+EXPORTS
+	; COM object/regsvr32
+	DllCanUnloadNow     PRIVATE
+	DllGetClassObject   PRIVATE
+	DllRegisterServer   PRIVATE
+	DllUnregisterServer PRIVATE
+	; rundll32
+	TestA PRIVATE
+	TestW PRIVATE

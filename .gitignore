@@ -4,6 +4,9 @@
 /x64
 /ARM
 /Win32
+*/x64
+*/ARM
+*/Win32
 *.db
 *.opendb
 *.aps
