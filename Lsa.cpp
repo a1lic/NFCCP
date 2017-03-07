@@ -1,5 +1,6 @@
 ﻿#include "Lsa.hpp"
 #include "Util.hpp"
+#include <intrin.h>
 
 using std::wstring;
 
@@ -176,7 +177,60 @@ extern "C" NTSTATUS NTAPI LsaApLogonUser(
 	UNICODE_STRING ** AuthenticatingAuthority)
 {
 	DebugPrint(L"%hs", "LsaApLogonUser");
-	return STATUS_NOT_IMPLEMENTED;
+
+
+	auto token_info = static_cast<LSA_TOKEN_INFORMATION_V1 *>((*Lsa::AllocateLsaHeap)(sizeof(LSA_TOKEN_INFORMATION_V1)));
+	if(!token_info)
+	{
+		return STATUS_INSUFFICIENT_RESOURCES;
+	}
+
+	*TokenInformationType = LSA_TOKEN_INFORMATION_TYPE::LsaTokenInformationV1;
+	*TokenInformation = token_info;
+
+	{
+		int64u exp;
+		exp.i64 = 0;
+		token_info->ExpirationTime = exp.li;
+	}
+
+	// ProtocolSubmitBufferの内容に基づいてSIDを設定
+	token_info->User.User.Attributes = 0;
+	token_info->User.User.Sid = nullptr;
+
+	token_info->Groups->GroupCount = 1;
+	token_info->Groups->Groups[0].Attributes = 0;
+	token_info->Groups->Groups[0].Sid = nullptr;
+
+	token_info->PrimaryGroup.PrimaryGroup = nullptr;
+
+	token_info->Privileges->PrivilegeCount = 1;
+	token_info->Privileges->Privileges[0].Attributes = 0;
+	token_info->Privileges->Privileges[0].Luid.LowPart = 0;
+	token_info->Privileges->Privileges[0].Luid.HighPart = 0;
+
+	token_info->Owner.Owner = nullptr;
+
+	token_info->DefaultDacl.DefaultDacl = nullptr;
+
+	{
+		ustring account_name(L"Administrator");
+		account_name.set_allocater(LsaAlloc, LsaFree);
+		*AccountName = account_name.to_unicode_string();
+	}
+
+	*SubStatus = STATUS_SUCCESS;
+	{
+		int64u luid;
+		luid.ui64 = __rdtsc();
+		//GetSystemTimePreciseAsFileTime(&luid.ft);
+		*LogonId = luid.id;
+	}
+
+	*ProfileBuffer = nullptr;
+	*ProfileBufferSize = 0;
+
+	return STATUS_SUCCESS;
 }
 
 extern "C" NTSTATUS NTAPI LsaApLogonUserEx(

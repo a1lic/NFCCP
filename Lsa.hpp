@@ -53,6 +53,15 @@ union LocalUniqId
 	__int64 RawId;
 };
 
+union int64u
+{
+	int64_t i64;
+	uint64_t ui64;
+	LARGE_INTEGER li;
+	LUID id;
+	FILETIME ft;
+};
+
 class LsaLogon
 {
 	PLSA_CLIENT_REQUEST Request;
