@@ -112,12 +112,14 @@ extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, i
 	open_stdio(StandardIO::Output);
 	open_stdio(StandardIO::Error);
 
-	CoInitializeEx(nullptr, COINIT_DISABLE_OLE1DDE | COINIT_APARTMENTTHREADED);
-	show_credential_dialog();
-	CoUninitialize();
+	test_smartcard_class();
 
-	_getwch();
-	//test_smartcard_class();
+	if(GetAsyncKeyState(VK_LCONTROL) & 0x8000)
+	{
+		CoInitializeEx(nullptr, COINIT_DISABLE_OLE1DDE | COINIT_APARTMENTTHREADED);
+		show_credential_dialog();
+		CoUninitialize();
+	}
 
 	close_stdio(StandardIO::Error);
 	close_stdio(StandardIO::Output);
