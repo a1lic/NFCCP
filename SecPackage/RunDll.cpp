@@ -1,8 +1,6 @@
-﻿#define WIN32_NO_STATUS
-#include <Windows.h>
-#undef WIN32_NO_STATUS
-#include <ntstatus.h>
+﻿#include <ntstatus.h>
 #define WIN32_NO_STATUS
+#include <Windows.h>
 #include <winscard.h>
 #include <string>
 #include <vector>
