@@ -72,6 +72,8 @@ void BinaryToString(const void * buf, size_t buf_size, wstring & str)
 	digit[3] = L'\0';
 
 	str.clear();
+	// 1バイトにつき3文字分必要になるのであらかじめ予約しておく
+	str.reserve(buf_size * 3);
 
 	for(size_t i = 0; i < buf_size; i++)
 	{

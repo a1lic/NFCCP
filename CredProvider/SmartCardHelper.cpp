@@ -61,28 +61,7 @@ SmartCard::~SmartCard()
 std::wstring SmartCard::GetID()
 {
 	std::wstring str;
-	wchar_t hex[4];
-	bool first_element = true;
-	for(auto i = this->id.begin(), e = this->id.end(); i < e; i++)
-	{
-		// IDを16進ダンプ
-		_i64tow_s(*i, hex, 4, 16);
-		if(hex[1] == L'\0')
-		{
-			// 変換後1桁の場合は0を付け加えて2桁にする
-			hex[1] = hex[0];
-			hex[0] = L'0';
-		}
-		hex[2] = L'\0';
-		if(!first_element)
-		{
-			// バイト列の2番目以降だった場合は空白を追加
-			str.append(L" ");
-		}
-		str.append(hex);
-
-		first_element = false;
-	}
+	BinaryToString(this->id.data(), this->id.size(), str);
 	return str;
 }
 
