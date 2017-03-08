@@ -9,17 +9,11 @@ void * dll;
 ULONG global_instances;
 wstring * module_path;
 
-wstring * database;
-wstring * confidentiality;
-
 extern "C" bool dll_process_attach()
 {
 	DisableThreadLibraryCalls(static_cast<HMODULE>(dll));
 	DebugPrint(L"Start DLL_PROCESS_ATTACH");
 	global_instances = 0;
-
-	database = new wstring;
-	confidentiality = new wstring;
 
 	// DllRegisterServerで使用するフルパスを取得
 	// Windows 10以降ではMAX_PATHを超えることが可能になったのでその対策
@@ -56,8 +50,6 @@ extern "C" void dll_process_detach()
 {
 	DebugPrint(L"Start DLL_PROCESS_DETACH");
 	delete module_path;
-	delete confidentiality;
-	delete database;
 	DebugPrint(L"End DLL_PROCESS_DETACH");
 }
 
