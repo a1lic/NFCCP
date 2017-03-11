@@ -10,10 +10,22 @@ wstring * module_path;
 extern wstring * database;
 extern wstring * confidentiality;
 
+namespace Lsa
+{
+	HANDLE Heap;
+}
+
 extern "C" bool dll_process_attach()
 {
 	DisableThreadLibraryCalls(static_cast<HMODULE>(dll));
 	DebugPrint(L"Start DLL_PROCESS_ATTACH");
+
+	Lsa::Heap = HeapCreate(0, 65536, 0);
+	if(!Lsa::Heap)
+	{
+		DebugPrint(L"HeapCreate failed.");
+		return false;
+	}
 
 	// DllRegisterServerで使用するフルパスを取得
 	// Windows 10以降ではMAX_PATHを超えることが可能になったのでその対策
@@ -33,6 +45,7 @@ extern "C" bool dll_process_attach()
 		if(_module_path_chars >= 65536)
 		{
 			DebugPrint(L"Can't get module path.");
+			HeapDestroy(Lsa::Heap);
 			return false;
 		}
 	}
@@ -55,6 +68,7 @@ extern "C" void dll_process_detach()
 	delete confidentiality;
 	delete database;
 	delete module_path;
+	HeapDestroy(Lsa::Heap);
 	DebugPrint(L"End DLL_PROCESS_DETACH");
 }
 

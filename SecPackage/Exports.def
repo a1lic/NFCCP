@@ -14,3 +14,8 @@ EXPORTS
 	LsaApLogonUser              PRIVATE
 	LsaApLogonUserEx            PRIVATE
 	LsaApLogonUserEx2           PRIVATE
+	; Security Package
+	SpInitialize         PRIVATE
+	SpLsaModeInitialize  PRIVATE
+	SpUserModeInitialize PRIVATE
+	SpInstanceInit       PRIVATE

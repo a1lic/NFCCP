@@ -107,12 +107,14 @@
     <ClCompile Include="Lsa.cpp" />
     <ClCompile Include="RunDll.cpp" />
     <ClCompile Include="SecIdentity.cpp" />
+    <ClCompile Include="SSP.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\StringClass.hpp" />
     <ClInclude Include="..\Common\Util.hpp" />
     <ClInclude Include="Lsa.hpp" />
     <ClInclude Include="SecIdentity.hpp" />
+    <ClInclude Include="SSP.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />
