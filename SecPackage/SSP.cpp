@@ -1,76 +1,19 @@
 ﻿#define SSP_CPP
 #include "SSP.hpp"
+#include "Lsa.hpp"
 #include "../Common/Util.hpp"
 
 namespace Lsa
 {
 	ULONG_PTR package_id;
 	LSA_SECPKG_FUNCTION_TABLE F;
+	SECPKG_FUNCTION_TABLE S;
 };
-
-/*
-InitializePackage*
-LogonUser*
-CallPackage
-LogonTerminated
-CallPackageUntrusted
-CallPackagePassthrough*
-LogonUserEx*
-LogonUserEx2
-Initialize
-Shutdown
-GetInfo
-AcceptCredentials
-AcquireCredentialsHandle
-QueryCredentialsAttributes*
-FreeCredentialsHandle
-SaveCredentials
-GetCredentials
-DeleteCredentials
-InitLsaModeContext
-AcceptLsaModeContext
-DeleteContext
-ApplyControlToken
-GetUserInfo
-GetExtendedInformation*
-QueryCredentialsAttributes
-AddCredentials*
-SetExtendedInformation
-SetContextAttributes*
-SetCredentialsAttributes*
-ChangeAccountPassword*
-CallPackagePassthrough
-QueryMetaData*
-ExchangeMetaData*
-GetCredUIContext*
-UpdateCredentials*
-ValidateTargetInfo*
-PostLogonUser*
-GetRemoteCredGuardLogonBuffer*
-GetRemoteCredGuardSupplementalCreds*
-*/
-
-extern "C" NTSTATUS NTAPI SpLsaModeInitialize(ULONG LsaVersion, ULONG * PackageVersion, SECPKG_FUNCTION_TABLE ** ppTables, ULONG * pcTables)
-{
-	SecureZeroMemory(*ppTables, sizeof(SECPKG_FUNCTION_TABLE));
-	(*ppTables)->InitializePackage = nullptr;
-
-	return STATUS_NOT_IMPLEMENTED;
-}
-
-extern "C" NTSTATUS NTAPI SpUserModeInitialize(ULONG LsaVersion, ULONG * PackageVersion, SECPKG_USER_FUNCTION_TABLE ** ppTables, ULONG * pcTables)
-{
-	return STATUS_NOT_IMPLEMENTED;
-}
-
-extern "C" NTSTATUS NTAPI SpInstanceInit(ULONG Version, SECPKG_DLL_FUNCTIONS * FunctionTable, void ** UserFunctions)
-{
-	return STATUS_NOT_IMPLEMENTED;
-}
 
 extern "C" NTSTATUS NTAPI SpInitialize(ULONG_PTR PackageId, SECPKG_PARAMETERS * Parameters, LSA_SECPKG_FUNCTION_TABLE * FunctionTable)
 {
-	DebugPrint(L"SpInitialize(%Iu)", PackageId);
+	DebugPrint(L"Function %hs", "SpInitialize");
+	DebugPrint(L"Package ID=%Iu", PackageId);
 
 	Lsa::package_id = PackageId;
 	Lsa::F = *FunctionTable;
@@ -140,4 +83,75 @@ extern "C" NTSTATUS NTAPI SpInitialize(ULONG_PTR PackageId, SECPKG_PARAMETERS * 
 	DebugPrint(L"%32hs=0x%p", "SetAppModeInfo", Lsa::F.SetAppModeInfo);
 
 	return STATUS_SUCCESS;
+}
+
+extern "C" NTSTATUS NTAPI SpInstanceInit(ULONG Version, SECPKG_DLL_FUNCTIONS * FunctionTable, void ** UserFunctions)
+{
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+/*
+InitializePackage*
+LogonUser*
+CallPackage
+LogonTerminated
+CallPackageUntrusted
+CallPackagePassthrough*
+LogonUserEx*
+LogonUserEx2
+Initialize
+Shutdown
+GetInfo
+AcceptCredentials
+AcquireCredentialsHandle
+QueryCredentialsAttributes*
+FreeCredentialsHandle
+SaveCredentials
+GetCredentials
+DeleteCredentials
+InitLsaModeContext
+AcceptLsaModeContext
+DeleteContext
+ApplyControlToken
+GetUserInfo
+GetExtendedInformation*
+QueryCredentialsAttributes
+AddCredentials*
+SetExtendedInformation
+SetContextAttributes*
+SetCredentialsAttributes*
+ChangeAccountPassword*
+CallPackagePassthrough
+QueryMetaData*
+ExchangeMetaData*
+GetCredUIContext*
+UpdateCredentials*
+ValidateTargetInfo*
+PostLogonUser*
+GetRemoteCredGuardLogonBuffer*
+GetRemoteCredGuardSupplementalCreds*
+*/
+
+extern "C" NTSTATUS NTAPI SpLsaModeInitialize(ULONG LsaVersion, ULONG * PackageVersion, SECPKG_FUNCTION_TABLE ** ppTables, ULONG * pcTables)
+{
+	DebugPrint(L"Function %hs", "SpLsaModeInitialize");
+	DebugPrint(L"LSA version=%ul", LsaVersion);
+
+	*ppTables = &Lsa::S;
+
+	(*ppTables)->InitializePackage = LsaApInitializePackage;
+	(*ppTables)->LogonUser = LsaApLogonUser;
+	(*ppTables)->CallPackage = LsaApCallPackage;
+	(*ppTables)->CallPackageUntrusted = LsaApCallPackageUntrusted;
+	(*ppTables)->CallPackagePassthrough = LsaApCallPackagePassthrough;
+
+	return STATUS_SUCCESS;
+}
+
+extern "C" NTSTATUS NTAPI SpUserModeInitialize(ULONG LsaVersion, ULONG * PackageVersion, SECPKG_USER_FUNCTION_TABLE ** ppTables, ULONG * pcTables)
+{
+	DebugPrint(L"Function %hs", "SpUserModeInitialize");
+	DebugPrint(L"LSA version=%ul", LsaVersion);
+
+	return STATUS_NOT_IMPLEMENTED;
 }
