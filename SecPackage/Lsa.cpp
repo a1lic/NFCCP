@@ -1,27 +1,12 @@
 ﻿#include "Lsa.hpp"
+#include "SSP.hpp"
 #include "../Common/Util.hpp"
 #include <intrin.h>
 
 using std::wstring;
 
-unsigned long package_id;
 wstring * database;
 wstring * confidentiality;
-
-namespace Lsa
-{
-	PLSA_CREATE_LOGON_SESSION CreateLogonSession;
-	PLSA_DELETE_LOGON_SESSION DeleteLogonSession;
-	PLSA_ADD_CREDENTIAL AddCredential;
-	PLSA_GET_CREDENTIALS GetCredentials;
-	PLSA_DELETE_CREDENTIAL DeleteCredential;
-	PLSA_ALLOCATE_LSA_HEAP AllocateLsaHeap;
-	PLSA_FREE_LSA_HEAP FreeLsaHeap;
-	PLSA_ALLOCATE_CLIENT_BUFFER AllocateClientBuffer;
-	PLSA_FREE_CLIENT_BUFFER FreeClientBuffer;
-	PLSA_COPY_TO_CLIENT_BUFFER CopyToClientBuffer;
-	PLSA_COPY_FROM_CLIENT_BUFFER CopyFromClientBuffer;
-};
 
 void LoadLsaString(const LSA_STRING * l, wstring & s)
 {
@@ -47,16 +32,6 @@ void LoadLsaString(const LSA_STRING * l, wstring & s)
 
 	s.assign(wstr);
 	delete[] wstr;
-}
-
-void * LsaAlloc(size_t s)
-{
-	return (*Lsa::AllocateLsaHeap)(static_cast<ULONG>(s));
-}
-
-void LsaFree(void * p)
-{
-	(*Lsa::FreeLsaHeap)(p);
 }
 
 extern "C" NTSTATUS NTAPI LsaApCallPackage(
@@ -115,21 +90,7 @@ extern "C" NTSTATUS NTAPI LsaApInitializePackage(
 {
 	DebugPrint(L"%hs", "LsaApInitializePackage");
 
-	// LSAの関数
-	Lsa::CreateLogonSession = LsaDispatchTable->CreateLogonSession;
-	Lsa::DeleteLogonSession = LsaDispatchTable->DeleteLogonSession;
-	Lsa::AddCredential = LsaDispatchTable->AddCredential;
-	Lsa::GetCredentials = LsaDispatchTable->GetCredentials;
-	Lsa::DeleteCredential = LsaDispatchTable->DeleteCredential;
-	Lsa::AllocateLsaHeap = LsaDispatchTable->AllocateLsaHeap;
-	Lsa::FreeLsaHeap = LsaDispatchTable->FreeLsaHeap;
-	Lsa::AllocateClientBuffer = LsaDispatchTable->AllocateClientBuffer;
-	Lsa::FreeClientBuffer = LsaDispatchTable->FreeClientBuffer;
-	Lsa::CopyToClientBuffer = LsaDispatchTable->CopyToClientBuffer;
-	Lsa::CopyFromClientBuffer = LsaDispatchTable->CopyFromClientBuffer;
-
-	package_id = AuthenticationPackageId;
-	DebugPrint(L"Authentication package ID:%u", package_id);
+	DebugPrint(L"Authentication package ID:%u", AuthenticationPackageId);
 
 	// データベース名と守秘義務？は未使用のため意味なし…
 	LoadLsaString(Database, *database);
@@ -139,7 +100,7 @@ extern "C" NTSTATUS NTAPI LsaApInitializePackage(
 	DebugPrint(L"Confidentiality:%s", confidentiality->c_str());
 
 	auto package_name = ustring(L"nfcidauth");
-	package_name.set_allocater(LsaAlloc, LsaFree);
+	package_name.set_allocater(SpAlloc, SpFree);
 	*AuthenticationPackageName = package_name.to_lsa_string();
 
 	return STATUS_NOT_IMPLEMENTED;
@@ -181,7 +142,7 @@ extern "C" NTSTATUS NTAPI LsaApLogonUser(
 	DebugPrint(L"%hs", "LsaApLogonUser");
 
 
-	auto token_info = static_cast<LSA_TOKEN_INFORMATION_V1 *>((*Lsa::AllocateLsaHeap)(sizeof(LSA_TOKEN_INFORMATION_V1)));
+	auto token_info = static_cast<LSA_TOKEN_INFORMATION_V1 *>((*Lsa::F.AllocateLsaHeap)(sizeof(LSA_TOKEN_INFORMATION_V1)));
 	if(!token_info)
 	{
 		return STATUS_INSUFFICIENT_RESOURCES;
@@ -217,7 +178,7 @@ extern "C" NTSTATUS NTAPI LsaApLogonUser(
 
 	{
 		ustring account_name(L"Administrator");
-		account_name.set_allocater(LsaAlloc, LsaFree);
+		account_name.set_allocater(SpAlloc, SpFree);
 		*AccountName = account_name.to_unicode_string();
 	}
 

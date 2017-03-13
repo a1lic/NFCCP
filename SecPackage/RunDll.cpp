@@ -14,7 +14,7 @@
 #include <fcntl.h>
 #include <wincred.h>
 #include <Ole2.h>
-#include "Lsa.hpp"
+#include "SSP.hpp"
 #include "SecIdentity.hpp"
 #include "../Common/StringClass.hpp"
 #include "../Common/Util.hpp"
@@ -209,8 +209,8 @@ extern "C" void CALLBACK TestW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine, i
 	open_stdio(StandardIO::Output);
 	open_stdio(StandardIO::Error);
 
-	Lsa::AllocateLsaHeap = [](ULONG s) { return reinterpret_cast<void*>(new unsigned char[s]); };
-	Lsa::FreeLsaHeap = [](void * b) { delete[] static_cast<unsigned char*>(b); };
+	Lsa::F.AllocateLsaHeap = [](ULONG s) { return reinterpret_cast<void*>(new unsigned char[s]); };
+	Lsa::F.FreeLsaHeap = [](void * b) { delete[] static_cast<unsigned char*>(b); };
 
 	EnumAuthenticationPackages();
 	EnumAccounts();

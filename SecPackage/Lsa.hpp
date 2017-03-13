@@ -30,22 +30,6 @@ union int64u
 	FILETIME ft;
 };
 
-namespace Lsa
-{
-	extern PLSA_CREATE_LOGON_SESSION CreateLogonSession;
-	extern PLSA_DELETE_LOGON_SESSION DeleteLogonSession;
-	extern PLSA_ADD_CREDENTIAL AddCredential;
-	extern PLSA_GET_CREDENTIALS GetCredentials;
-	extern PLSA_DELETE_CREDENTIAL DeleteCredential;
-	extern PLSA_ALLOCATE_LSA_HEAP AllocateLsaHeap;
-	extern PLSA_FREE_LSA_HEAP FreeLsaHeap;
-	extern PLSA_ALLOCATE_CLIENT_BUFFER AllocateClientBuffer;
-	extern PLSA_FREE_CLIENT_BUFFER FreeClientBuffer;
-	extern PLSA_COPY_TO_CLIENT_BUFFER CopyToClientBuffer;
-	extern PLSA_COPY_FROM_CLIENT_BUFFER CopyFromClientBuffer;
-};
-
-extern unsigned long package_id;
 extern wstring * database;
 extern wstring * confidentiality;
 

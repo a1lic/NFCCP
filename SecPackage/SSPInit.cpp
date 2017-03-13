@@ -74,6 +74,16 @@ namespace Lsa
 	};
 };
 
+extern "C" void * SpAlloc(size_t s)
+{
+	return (*Lsa::F.AllocateLsaHeap)(static_cast<ULONG>(s));
+}
+
+extern "C" void SpFree(void * p)
+{
+	(*Lsa::F.FreeLsaHeap)(p);
+}
+
 extern "C" NTSTATUS NTAPI SpInitialize(ULONG_PTR PackageId, SECPKG_PARAMETERS * Parameters, LSA_SECPKG_FUNCTION_TABLE * FunctionTable)
 {
 	DebugPrint(L"Function %hs", "SpInitialize");
