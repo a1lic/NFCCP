@@ -15,6 +15,21 @@ typedef long NTSTATUS, *PNTSTATUS;
 
 using std::wstring;
 
+union LocalUniqId
+{
+	LUID Luid;
+	__int64 RawId;
+};
+
+union int64u
+{
+	int64_t i64;
+	uint64_t ui64;
+	LARGE_INTEGER li;
+	LUID id;
+	FILETIME ft;
+};
+
 namespace Lsa
 {
 	extern PLSA_CREATE_LOGON_SESSION CreateLogonSession;
@@ -34,88 +49,21 @@ extern unsigned long package_id;
 extern wstring * database;
 extern wstring * confidentiality;
 
-#if false
-enum Dispatch : unsigned char
-{
-	CreateLogonSession, DeleteLogonSession,
-	AddCredential, GetCredentials, DeleteCredential,
-	AllocateLsaHeap, FreeLsaHeap,
-	AllocateClientBuffer, FreeClientBuffer, CopyToClientBuffer, CopyFromClientBuffer,
-	Dispatch_Entries
-};
-#endif
-
 extern void LoadLsaString(const LSA_STRING *, wstring &);
 
-union LocalUniqId
+// LSA Authentication Package Functions Begin
+extern "C"
 {
-	LUID Luid;
-	__int64 RawId;
-};
+	extern NTSTATUS NTAPI LsaApInitializePackage(ULONG, LSA_DISPATCH_TABLE*, LSA_STRING*, LSA_STRING*, LSA_STRING**);
 
-union int64u
-{
-	int64_t i64;
-	uint64_t ui64;
-	LARGE_INTEGER li;
-	LUID id;
-	FILETIME ft;
-};
+	extern NTSTATUS NTAPI            LsaApCallPackage(PLSA_CLIENT_REQUEST, void*, void*, ULONG, void**, ULONG*, NTSTATUS*);
+	extern NTSTATUS NTAPI LsaApCallPackagePassthrough(PLSA_CLIENT_REQUEST, void*, void*, ULONG, void**, ULONG*, NTSTATUS*);
+	extern NTSTATUS NTAPI   LsaApCallPackageUntrusted(PLSA_CLIENT_REQUEST, void*, void*, ULONG, void**, ULONG*, NTSTATUS*);
 
-class LsaLogon
-{
-	PLSA_CLIENT_REQUEST Request;
-	SECURITY_LOGON_TYPE Type;
-	void * Buffer;
-	unsigned long Size;
-	void * LogonResult;
-	LocalUniqId Id;
-	NTSTATUS Status;
-	LSA_TOKEN_INFORMATION_TYPE TokenType;
-	void * TokenBuffer;
-	ustring AccountName;
-	ustring Authority;
-public:
-	inline void SetRequest(PLSA_CLIENT_REQUEST v)
-	{
-		this->Request = v;
-	}
-	inline void SetLogonType(SECURITY_LOGON_TYPE v)
-	{
-		this->Type = v;
-	}
-	inline void AssignBuffer(void * b, unsigned long s)
-	{
-		this->Buffer = b;
-		this->Size = s;
-	}
-	void Logon();
-	inline void * GetLogonResult()
-	{
-		return this->LogonResult;
-	}
-	inline __int64 GetLogonId()
-	{
-		return this->Id.RawId;
-	}
-	inline NTSTATUS GetLogonStatus()
-	{
-		return this->Status;
-	}
-	inline LSA_TOKEN_INFORMATION_TYPE GetTokenType()
-	{
-		return this->TokenType;
-	}
-	inline void * GetToken()
-	{
-		return this->TokenBuffer;
-	}
-	inline UNICODE_STRING * GetAccountName()
-	{
-		return this->AccountName;
-	}
-	inline UNICODE_STRING * GetAuthority()
-	{
-		return this->Authority;
-	}
-};
+	extern NTSTATUS NTAPI    LsaApLogonUser(PLSA_CLIENT_REQUEST, SECURITY_LOGON_TYPE, void *, void *, ULONG, void**, ULONG*, LUID*, NTSTATUS*, LSA_TOKEN_INFORMATION_TYPE*, void**, UNICODE_STRING**, UNICODE_STRING**);
+	extern NTSTATUS NTAPI  LsaApLogonUserEx(PLSA_CLIENT_REQUEST, SECURITY_LOGON_TYPE, void *, void *, ULONG, void**, ULONG*, LUID*, NTSTATUS*, LSA_TOKEN_INFORMATION_TYPE*, void**, UNICODE_STRING**, UNICODE_STRING**, UNICODE_STRING**);
+	extern NTSTATUS NTAPI LsaApLogonUserEx2(PLSA_CLIENT_REQUEST, SECURITY_LOGON_TYPE, void *, void *, ULONG, void**, ULONG*, LUID*, NTSTATUS*, LSA_TOKEN_INFORMATION_TYPE*, void**, UNICODE_STRING**, UNICODE_STRING**, UNICODE_STRING**, SECPKG_PRIMARY_CRED*, SECPKG_SUPPLEMENTAL_CRED_ARRAY**);
+
+	extern     void NTAPI   LsaApLogonTerminated(LUID*);
+}
+// LSA Authentication Package Functions End

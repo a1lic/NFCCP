@@ -64,10 +64,10 @@ extern "C" NTSTATUS NTAPI LsaApCallPackage(
 	PLSA_CLIENT_REQUEST ClientRequest,
 	void *ProtocolSubmitBuffer,
 	void *ClientBufferBase,
-	unsigned long SubmitBufferLength,
+	ULONG SubmitBufferLength,
 	// returns
 	void **ProtocolReturnBuffer,
-	unsigned long *ReturnBufferLength,
+	ULONG *ReturnBufferLength,
 	NTSTATUS *ProtocolStatus)
 {
 	DebugPrint(L"%hs", "LsaApCallPackage");
@@ -79,10 +79,10 @@ extern "C" NTSTATUS NTAPI LsaApCallPackagePassthrough(
 	PLSA_CLIENT_REQUEST ClientRequest,
 	void * ProtocolSubmitBuffer,
 	void * ClientBufferBase,
-	unsigned long SubmitBufferLength,
+	ULONG SubmitBufferLength,
 	// returns
 	void ** ProtocolReturnBuffer,
-	unsigned long * ReturnBufferLength,
+	ULONG * ReturnBufferLength,
 	NTSTATUS * ProtocolStatus)
 {
 	DebugPrint(L"%hs", "LsaApCallPackagePassthrough");
@@ -94,10 +94,10 @@ extern "C" NTSTATUS NTAPI LsaApCallPackageUntrusted(
 	PLSA_CLIENT_REQUEST ClientRequest,
 	void * ProtocolSubmitBuffer,
 	void * ClientBufferBase,
-	unsigned long SubmitBufferLength,
+	ULONG SubmitBufferLength,
 	// returns
 	void ** ProtocolReturnBuffer,
-	unsigned long * ReturnBufferLength,
+	ULONG * ReturnBufferLength,
 	NTSTATUS * ProtocolStatus)
 {
 	DebugPrint(L"%hs", "LsaApCallPackageUntrusted");
@@ -106,7 +106,7 @@ extern "C" NTSTATUS NTAPI LsaApCallPackageUntrusted(
 
 extern "C" NTSTATUS NTAPI LsaApInitializePackage(
 	// arguments
-	unsigned long AuthenticationPackageId,
+	ULONG AuthenticationPackageId,
 	LSA_DISPATCH_TABLE * LsaDispatchTable,
 	LSA_STRING * Database,
 	LSA_STRING * Confidentiality,
@@ -167,10 +167,10 @@ extern "C" NTSTATUS NTAPI LsaApLogonUser(
 	SECURITY_LOGON_TYPE LogonType,
 	void * ProtocolSubmitBuffer,
 	void * ClientBufferBase,
-	unsigned long SubmitBufferSize,
+	ULONG SubmitBufferSize,
 	// returns
 	void ** ProfileBuffer,
-	unsigned long * ProfileBufferSize,
+	ULONG * ProfileBufferSize,
 	LUID * LogonId,
 	NTSTATUS * SubStatus,
 	LSA_TOKEN_INFORMATION_TYPE * TokenInformationType,
@@ -241,10 +241,10 @@ extern "C" NTSTATUS NTAPI LsaApLogonUserEx(
 	SECURITY_LOGON_TYPE LogonType,
 	void * ProtocolSubmitBuffer,
 	void * ClientBufferBase,
-	unsigned long SubmitBufferSize,
+	ULONG SubmitBufferSize,
 	// returns
 	void ** ProfileBuffer,
-	unsigned long * ProfileBufferSize,
+	ULONG * ProfileBufferSize,
 	LUID * LogonId,
 	NTSTATUS * SubStatus,
 	LSA_TOKEN_INFORMATION_TYPE * TokenInformationType,
@@ -263,10 +263,10 @@ extern "C" NTSTATUS NTAPI LsaApLogonUserEx2(
 	SECURITY_LOGON_TYPE LogonType,
 	void * ProtocolSubmitBuffer,
 	void * ClientBufferBase,
-	unsigned long SubmitBufferSize,
+	ULONG SubmitBufferSize,
 	// returns
 	void ** ProfileBuffer,
-	unsigned long * ProfileBufferSize,
+	ULONG * ProfileBufferSize,
 	LUID * LogonId,
 	NTSTATUS * SubStatus,
 	LSA_TOKEN_INFORMATION_TYPE * TokenInformationType,
