@@ -1,4 +1,8 @@
-﻿#include <ntstatus.h>
+﻿#if defined(WINAPI_FAMILY)
+#undef WINAPI_FAMILY
+#define WINAPI_FAMILY WINAPI_FAMILY_DESKTOP_APP
+#endif
+#include <ntstatus.h>
 #define WIN32_NO_STATUS
 #include <Windows.h>
 #include <winscard.h>
