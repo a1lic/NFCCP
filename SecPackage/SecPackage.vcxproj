@@ -107,7 +107,7 @@
     <ClCompile Include="Lsa.cpp" />
     <ClCompile Include="RunDll.cpp" />
     <ClCompile Include="SecIdentity.cpp" />
-    <ClCompile Include="SSP.cpp" />
+    <ClCompile Include="SSPInit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\StringClass.hpp" />

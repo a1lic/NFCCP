@@ -18,4 +18,3 @@ EXPORTS
 	SpInitialize         PRIVATE
 	SpLsaModeInitialize  PRIVATE
 	SpUserModeInitialize PRIVATE
-	SpInstanceInit       PRIVATE

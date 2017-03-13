@@ -7,7 +7,71 @@ namespace Lsa
 {
 	ULONG_PTR package_id;
 	LSA_SECPKG_FUNCTION_TABLE F;
-	SECPKG_FUNCTION_TABLE S;
+	const SECPKG_FUNCTION_TABLE S = {
+		/* Version 1 */
+		/* InitializePackage                   */ nullptr,
+		/* LogonUser                           */ nullptr,
+		/* CallPackage                         */ nullptr,
+		/* LogonTerminated                     */ nullptr,
+		/* CallPackageUntrusted                */ nullptr,
+		/* CallPackagePassthrough              */ nullptr,
+		/* LogonUserEx                         */ nullptr,
+		/* LogonUserEx2                        */ nullptr,
+		/* Initialize                          */ nullptr,
+		/* Shutdown                            */ nullptr,
+		/* GetInfo                             */ nullptr,
+		/* AcceptCredentials                   */ nullptr,
+		/* AcquireCredentialsHandle            */ nullptr,
+		/* QueryCredentialsAttributes          */ nullptr,
+		/* FreeCredentialsHandle               */ nullptr,
+		/* SaveCredentials                     */ nullptr,
+		/* GetCredentials                      */ nullptr,
+		/* DeleteCredentials                   */ nullptr,
+		/* InitLsaModeContext                  */ nullptr,
+		/* AcceptLsaModeContext                */ nullptr,
+		/* DeleteContext                       */ nullptr,
+		/* ApplyControlToken                   */ nullptr,
+		/* GetUserInfo                         */ nullptr,
+		/* GetExtendedInformation              */ nullptr,
+		/* QueryContextAttributes              */ nullptr,
+		/* AddCredentials                      */ nullptr,
+		/* SetExtendedInformation              */ nullptr,
+		/* Version 2 */
+		/* SetContextAttributes                */ nullptr,
+		/* Version 3 */
+		/* SetCredentialsAttributes            */ nullptr,
+		/* Version 4 */
+		/* ChangeAccountPassword               */ nullptr,
+		/* Version 5 */
+		/* QueryMetaData                       */ nullptr,
+		/* ExchangeMetaData                    */ nullptr,
+		/* GetCredUIContext                    */ nullptr,
+		/* UpdateCredentials                   */ nullptr,
+		/* Version 6 */
+		/* ValidateTargetInfo                  */ nullptr,
+		/* Version 7 */
+		/* PostLogonUser                       */ nullptr,
+		/* Version 8 */
+		/* GetRemoteCredGuardLogonBuffer       */ nullptr,
+		/* GetRemoteCredGuardSupplementalCreds */ nullptr
+	};
+	const SECPKG_USER_FUNCTION_TABLE U = {
+		/* Version 1 */
+		/* InstanceInit              */ nullptr,
+		/* InitUserModeContext       */ nullptr,
+		/* MakeSignature             */ nullptr,
+		/* VerifySignature           */ nullptr,
+		/* SealMessage               */ nullptr,
+		/* UnsealMessage             */ nullptr,
+		/* GetContextToken           */ nullptr,
+		/* QueryContextAttributes    */ nullptr,
+		/* CompleteAuthToken         */ nullptr,
+		/* DeleteUserModeContext     */ nullptr,
+		/* FormatCredentials         */ nullptr,
+		/* MarshallSupplementalCreds */ nullptr,
+		/* ExportContext             */ nullptr,
+		/* ImportContext             */ nullptr
+	};
 };
 
 extern "C" NTSTATUS NTAPI SpInitialize(ULONG_PTR PackageId, SECPKG_PARAMETERS * Parameters, LSA_SECPKG_FUNCTION_TABLE * FunctionTable)
@@ -85,65 +149,20 @@ extern "C" NTSTATUS NTAPI SpInitialize(ULONG_PTR PackageId, SECPKG_PARAMETERS * 
 	return STATUS_SUCCESS;
 }
 
-extern "C" NTSTATUS NTAPI SpInstanceInit(ULONG Version, SECPKG_DLL_FUNCTIONS * FunctionTable, void ** UserFunctions)
-{
-	return STATUS_NOT_IMPLEMENTED;
-}
-
-/*
-InitializePackage*
-LogonUser*
-CallPackage
-LogonTerminated
-CallPackageUntrusted
-CallPackagePassthrough*
-LogonUserEx*
-LogonUserEx2
-Initialize
-Shutdown
-GetInfo
-AcceptCredentials
-AcquireCredentialsHandle
-QueryCredentialsAttributes*
-FreeCredentialsHandle
-SaveCredentials
-GetCredentials
-DeleteCredentials
-InitLsaModeContext
-AcceptLsaModeContext
-DeleteContext
-ApplyControlToken
-GetUserInfo
-GetExtendedInformation*
-QueryCredentialsAttributes
-AddCredentials*
-SetExtendedInformation
-SetContextAttributes*
-SetCredentialsAttributes*
-ChangeAccountPassword*
-CallPackagePassthrough
-QueryMetaData*
-ExchangeMetaData*
-GetCredUIContext*
-UpdateCredentials*
-ValidateTargetInfo*
-PostLogonUser*
-GetRemoteCredGuardLogonBuffer*
-GetRemoteCredGuardSupplementalCreds*
-*/
-
 extern "C" NTSTATUS NTAPI SpLsaModeInitialize(ULONG LsaVersion, ULONG * PackageVersion, SECPKG_FUNCTION_TABLE ** ppTables, ULONG * pcTables)
 {
 	DebugPrint(L"Function %hs", "SpLsaModeInitialize");
 	DebugPrint(L"LSA version=%ul", LsaVersion);
 
-	*ppTables = &Lsa::S;
+	if(LsaVersion < 1)
+	{
+		DebugPrint(L"LSA version is too old");
+		return STATUS_INVALID_PARAMETER_1;
+	}
 
-	(*ppTables)->InitializePackage = LsaApInitializePackage;
-	(*ppTables)->LogonUser = LsaApLogonUser;
-	(*ppTables)->CallPackage = LsaApCallPackage;
-	(*ppTables)->CallPackageUntrusted = LsaApCallPackageUntrusted;
-	(*ppTables)->CallPackagePassthrough = LsaApCallPackagePassthrough;
+	*PackageVersion = SECPKG_INTERFACE_VERSION;
+	*ppTables = const_cast<SECPKG_FUNCTION_TABLE*>(&Lsa::S);
+	*pcTables = 1;
 
 	return STATUS_SUCCESS;
 }
@@ -153,5 +172,9 @@ extern "C" NTSTATUS NTAPI SpUserModeInitialize(ULONG LsaVersion, ULONG * Package
 	DebugPrint(L"Function %hs", "SpUserModeInitialize");
 	DebugPrint(L"LSA version=%ul", LsaVersion);
 
-	return STATUS_NOT_IMPLEMENTED;
+	*PackageVersion = SECPKG_INTERFACE_VERSION;
+	*ppTables = const_cast<SECPKG_USER_FUNCTION_TABLE*>(&Lsa::U);
+	*pcTables = 1;
+
+	return STATUS_SUCCESS;
 }
