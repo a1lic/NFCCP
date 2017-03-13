@@ -9,12 +9,12 @@ namespace Lsa
 	LSA_SECPKG_FUNCTION_TABLE F;
 	const SECPKG_FUNCTION_TABLE S = {
 		/* Version 1 */
-		/* InitializePackage                   */ nullptr,
-		/* LogonUser                           */ nullptr,
-		/* CallPackage                         */ nullptr,
-		/* LogonTerminated                     */ nullptr,
-		/* CallPackageUntrusted                */ nullptr,
-		/* CallPackagePassthrough              */ nullptr,
+		/* InitializePackage                   */ LsaApInitializePackage,
+		/* LogonUser                           */ LsaApLogonUser,
+		/* CallPackage                         */ LsaApCallPackage,
+		/* LogonTerminated                     */ LsaApLogonTerminated,
+		/* CallPackageUntrusted                */ LsaApCallPackageUntrusted,
+		/* CallPackagePassthrough              */ LsaApCallPackagePassthrough,
 		/* LogonUserEx                         */ nullptr,
 		/* LogonUserEx2                        */ nullptr,
 		/* Initialize                          */ nullptr,
