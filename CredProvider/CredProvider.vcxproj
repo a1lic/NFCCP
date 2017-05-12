@@ -66,7 +66,7 @@
       <Version>1.0</Version>
       <EnableUAC>false</EnableUAC>
       <AdditionalOptions>/PDBALTPATH:$(TargetName).pdb %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>winscard.lib;ktmw32.lib;shlwapi.lib;credui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)Common.lib;winscard.lib;ktmw32.lib;shlwapi.lib;credui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
       <BaseAddress>0x700700700000</BaseAddress>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
@@ -93,15 +93,13 @@
       <EnableUAC>false</EnableUAC>
       <SetChecksum>true</SetChecksum>
       <AdditionalOptions>/PDBALTPATH:$(TargetName).pdb %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>winscard.lib;ktmw32.lib;shlwapi.lib;credui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)Common.lib;winscard.lib;ktmw32.lib;shlwapi.lib;credui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
       <BaseAddress>0x700700700000</BaseAddress>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Common\StringClass.cpp" />
-    <ClCompile Include="..\Common\Util.cpp" />
     <ClCompile Include="ClassFactory.cpp" />
     <ClCompile Include="Credential.cpp" />
     <ClCompile Include="DllMain.cpp" />
@@ -112,8 +110,6 @@
     <ClCompile Include="SmartCardHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Common\StringClass.hpp" />
-    <ClInclude Include="..\Common\Util.hpp" />
     <ClInclude Include="ClassFactory.hpp" />
     <ClInclude Include="Credential.hpp" />
     <ClInclude Include="Filter.hpp" />
