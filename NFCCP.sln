@@ -4,8 +4,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.26430.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SecurityPackage", "SecPackage\SecPackage.vcxproj", "{1D9145A7-69AE-4D91-BEEF-BF5952E38A70}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1587CED2-D40E-4043-BB74-C34872BE8471} = {1587CED2-D40E-4043-BB74-C34872BE8471}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CredentialProvider", "CredProvider\CredProvider.vcxproj", "{911B7C3A-2402-4A79-A4CA-0D6595CB8419}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1587CED2-D40E-4043-BB74-C34872BE8471} = {1587CED2-D40E-4043-BB74-C34872BE8471}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1FAE7337-97E2-4B07-98AC-CEA0289D66F1}"
 	ProjectSection(SolutionItems) = preProject
