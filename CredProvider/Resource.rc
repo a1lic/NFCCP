@@ -31,7 +31,7 @@ VS_VERSION_INFO VERSIONINFO
 			VALUE "FileVersion","1.0"
 			VALUE "LegalCopyright","© 2017 alice"
 			VALUE "OriginalFilename","nfccp.dll"
-			VALUE "InternalName","nfccp"
+			VALUE "InternalName","shigure"
 			// Windows 7のプロパティでは必須らしい項目
 			VALUE "ProductName","NFC™ Credential Provider"
 			VALUE "ProductVersion","1.0"
