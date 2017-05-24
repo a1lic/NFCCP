@@ -70,6 +70,8 @@
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
       <BaseAddress>0x700700700000</BaseAddress>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -97,6 +99,8 @@
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
       <BaseAddress>0x700700700000</BaseAddress>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
